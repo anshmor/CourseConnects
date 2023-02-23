@@ -8,7 +8,7 @@ coursesProfs = {}
 idToCourseProf = {}
 
 class ProfCourse:
-    def __init__(self, prof, course, dept, courseNumber, year, season):
+    def __init__(self, prof, course, dept, courseNumber, year, season, groupMe):
         self.prof = prof
         self.course = course
         self.dept = dept
@@ -16,7 +16,7 @@ class ProfCourse:
         self.year = year
         self.season = season
         self.ids = []
-        self.groupMe = {}
+        self.groupMe = groupMe
         
 
     def __eq__(self, obj):
@@ -108,7 +108,7 @@ def scrapeData():
 
         
             if (prof != "" and course != ""):
-                curProfCourse = ProfCourse(prof, course, dept, courseNumber, year, season)
+                curProfCourse = ProfCourse(prof, course, dept, courseNumber, year, season, {})
                 # if current prof and course already in dict, add current id to that object
                 lookup = course + prof + dept + courseNumber
                 if lookup in coursesProfs:
@@ -168,24 +168,47 @@ def buildDictFromMongoDB():
     
     results = collection.find()
     for doc in results:
-        curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'])
+        curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'], doc['groupMe'])
         for i in doc['ids']:
             idToCourseProf[i] = curCourseProf
             curCourseProf.ids.append(i)
-        
-        query = {'prof': curCourseProf.prof, 'course': curCourseProf.course, 'courseNumber': curCourseProf.courseNumber, 'dept': curCourseProf.dept}
-        newValues = {'$set': {'course': 'test'}}
-        collection.update_one(query, newValues)
-    
-    for i in idToCourseProf:
-    
-        print(i + ": " + str(idToCourseProf[i]))
 
+def createGroupMe():
+    client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
+                                tlsAllowInvalidCertificates=True)
+    db = client['coursesProfs']
+    collection = db['coursesProfs']
+
+    for i in idToCourseProf:
+        curCourseProf = idToCourseProf[i]
+
+        # no groupMe link for current course
+        if (len(curCourseProf.groupMe) == 0):
+            # create groupMe for course
+            payload = {'name': curCourseProf.course + ' ' + curCourseProf.prof, 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
+            headers = {'Content-Type': 'application/json', 'X-Access-Token': access_token}
+            r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers).json()
+            if (r['meta']['code'] != 201):
+                print("Error occurred while trying to create GroupMe group.")
+            else:
+                groupMeResponse = r['response']
+                # push it to mongoDB database
+                groupMeDict = {'id': groupMeResponse['id'], 'share_url': groupMeResponse['share_url']}
+                newValues = {'$set': {'groupMe': groupMeDict}}
+                query = {'prof': curCourseProf.prof, 'course': curCourseProf.course, 'courseNumber': curCourseProf.courseNumber, 'dept': curCourseProf.dept}
+                collection.update_one(query, newValues)
+
+                # update local groupMe info in courseProf
+                curCourseProf.groupMe = groupMeDict
 
 def main():
     #scrapeData()
     #buildMongoDBData()
-    #buildDictFromMongoDB()
+    buildDictFromMongoDB()
+    createGroupMe()
+    for i in idToCourseProf:
+        print(i + ": " + str(idToCourseProf[i]))
+        print(idToCourseProf[i].groupMe)
     if __name__ == "__main__":
 	    app.run()
 
