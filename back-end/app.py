@@ -1,6 +1,7 @@
 from flask import Flask, request
+from pymongo import MongoClient
 from bs4 import BeautifulSoup
-import requests
+import requests, ssl
 
 class ProfCourse:
     def __init__(self, prof, course, dept, courseNumber, year, season):
@@ -11,6 +12,7 @@ class ProfCourse:
         self.year = year
         self.season = season
         self.ids = []
+        self.groupMeLink = ""
         
 
     def __eq__(self, obj):
@@ -22,9 +24,12 @@ class ProfCourse:
     def __hash__(self):
         return hash(str(self))
 
+coursesProfs = {}
+
 def scrapeData():
+    year = "2023"
     # set up for web scraping from html url
-    url = 'https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=2023&semester=2&department=&course_number=&course_title=&unique=&instructor_first=&instructor_last=&course_type=In+Residence&search=Search'
+    url = 'https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=' + year + '&semester=2&department=&course_number=&course_title=&unique=&instructor_first=&instructor_last=&course_type=In+Residence&search=Search'
     response = requests.get(url)
     html = response.content
     soup = BeautifulSoup(html, 'html.parser')
@@ -43,10 +48,9 @@ def scrapeData():
     # hit the url with each possible course category and get all courses and associated professors
     # coursesProfs = set()
     # idToCourse = {}
-    coursesProfs = {}
 
     for classCategory in classCategories:
-        url = "https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=2023&semester=2&department=" + classCategory + "&course_number=&course_title=&unique=&instructor_first=&instructor_last=&course_type=In+Residence&search=Search"
+        url = 'https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=' + year + '&semester=2&department=' + classCategory + '&course_number=&course_title=&unique=&instructor_first=&instructor_last=&course_type=In+Residence&search=Search'
         response = requests.get(url)
         html = response.content
         soup = BeautifulSoup(html, 'html.parser')
@@ -123,13 +127,39 @@ def scrapeData():
             f.write(str(curCourseProf) + '\n')
         f.close()
 
-scrapeData()
+#scrapeData()
 
 app = Flask(__name__)
+client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
+                             tlsAllowInvalidCertificates=True)
+db = client['coursesProfs']
+my_collection = db['coursesProfs']
+for i in coursesProfs:
+    #my_collection.insert_one(vars(coursesProfs[i]))
+    break
+#my_collection.insert_one({"name": "bob", "profession": "software engineer"})
 
 @app.route("/")
 def hello():
     return "Hello World!"
+
+access_token = '4d2d3cf09548013bf6670242ac110002'
+
+@app.route("/create")
+def create_group():
+    payload = {'name': 'test4', 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
+    headers = {'Content-Type': 'application/json', 'X-Access-Token': access_token}
+    r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers)
+    #r = requests.post('https://api.groupme.com/v3/groups/92404620/destroy', headers=headers)
+    #r = requests.get('https://api.groupme.com/v3/groups/92404620/destroy?token=4d2d3cf09548013bf6670242ac110002')
+    return r.json()
+
+@app.route('/delete')
+def delete_group():
+    headers = {'Content-Type': 'application/json', 'X-Access-Token': access_token}
+    requests.post('https://api.groupme.com/v3/groups/92405151/destroy', headers=headers)
+    return "deleted"
+    
 
 if __name__ == "__main__":
 	app.run()
