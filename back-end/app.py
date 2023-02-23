@@ -1,7 +1,11 @@
 from flask import Flask, request
 from pymongo import MongoClient
 from bs4 import BeautifulSoup
-import requests, ssl
+import requests
+
+app = Flask(__name__)
+coursesProfs = {}
+idToCourseProf = {}
 
 class ProfCourse:
     def __init__(self, prof, course, dept, courseNumber, year, season):
@@ -12,7 +16,7 @@ class ProfCourse:
         self.year = year
         self.season = season
         self.ids = []
-        self.groupMeLink = ""
+        self.groupMe = {}
         
 
     def __eq__(self, obj):
@@ -24,12 +28,8 @@ class ProfCourse:
     def __hash__(self):
         return hash(str(self))
 
-coursesProfs = {}
-
 def scrapeData():
-    year = "2023"
-    # set up for web scraping from html url
-    url = 'https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=' + year + '&semester=2&department=&course_number=&course_title=&unique=&instructor_first=&instructor_last=&course_type=In+Residence&search=Search'
+    url = 'https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=2023&semester=2&department=&course_number=&course_title=&unique=&instructor_first=&instructor_last=&course_type=In+Residence&search=Search'
     response = requests.get(url)
     html = response.content
     soup = BeautifulSoup(html, 'html.parser')
@@ -41,16 +41,12 @@ def scrapeData():
         optionString: str = option.text
         temp: int = optionString.find("-")
         if (temp == 3):
-            # spaces are replaced with a '+' when course categeory appears in the URL
             classCategories.append(optionString[:3].replace(" ", "+"))
 
 
     # hit the url with each possible course category and get all courses and associated professors
-    # coursesProfs = set()
-    # idToCourse = {}
-
     for classCategory in classCategories:
-        url = 'https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=' + year + '&semester=2&department=' + classCategory + '&course_number=&course_title=&unique=&instructor_first=&instructor_last=&course_type=In+Residence&search=Search'
+        url = "https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=2023&semester=2&department=" + classCategory + "&course_number=&course_title=&unique=&instructor_first=&instructor_last=&course_type=In+Residence&search=Search"
         response = requests.get(url)
         html = response.content
         soup = BeautifulSoup(html, 'html.parser')
@@ -64,6 +60,7 @@ def scrapeData():
             year = ""
             season = ""
             for td_tag in tr_tag.find_all('td'):
+
                 # year and season is first tag
                 if index == 0:
                     yearAndSeason = td_tag.text.split(', ')
@@ -71,12 +68,14 @@ def scrapeData():
                         year = yearAndSeason[0].strip()
                         season = yearAndSeason[1].strip()
 
-                # dept is second td tag
-                elif index == 1:
+                # dept is seconnd td tag
+                if index == 1:
                     dept = td_tag.text
+
                 # courseNumber is third td tag
                 elif index == 2:
                     courseNumber = td_tag.text
+
                 # course title is fourth td tag
                 elif index == 3:
                     courseUnformatted = td_tag.text
@@ -120,24 +119,13 @@ def scrapeData():
                     curProfCourse.ids.append(courseId)
                     coursesProfs[lookup] = curProfCourse
 
+
     # write all course and prof combos to text file
     with open('profCourses.txt', 'w') as f: 
         for i in coursesProfs:
             curCourseProf = coursesProfs[i]
             f.write(str(curCourseProf) + '\n')
         f.close()
-
-#scrapeData()
-
-app = Flask(__name__)
-client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
-                             tlsAllowInvalidCertificates=True)
-db = client['coursesProfs']
-my_collection = db['coursesProfs']
-for i in coursesProfs:
-    #my_collection.insert_one(vars(coursesProfs[i]))
-    break
-#my_collection.insert_one({"name": "bob", "profession": "software engineer"})
 
 @app.route("/")
 def hello():
@@ -159,7 +147,46 @@ def delete_group():
     headers = {'Content-Type': 'application/json', 'X-Access-Token': access_token}
     requests.post('https://api.groupme.com/v3/groups/92405151/destroy', headers=headers)
     return "deleted"
-    
 
-if __name__ == "__main__":
-	app.run()
+def buildMongoDBData():
+    client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
+                                tlsAllowInvalidCertificates=True)
+    db = client['coursesProfs']
+    collection = db['coursesProfs']
+    for i in coursesProfs:
+        collection.insert_one(vars(coursesProfs[i]))
+        #collection.insert_one({"name": "bob", "profession": "software engineer"})
+        break
+
+
+def buildDictFromMongoDB():
+    client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
+                                tlsAllowInvalidCertificates=True)
+    db = client['coursesProfs']
+    collection = db['coursesProfs']
+
+    
+    results = collection.find()
+    for doc in results:
+        curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'])
+        for i in doc['ids']:
+            idToCourseProf[i] = curCourseProf
+            curCourseProf.ids.append(i)
+        
+        query = {'prof': curCourseProf.prof, 'course': curCourseProf.course, 'courseNumber': curCourseProf.courseNumber, 'dept': curCourseProf.dept}
+        newValues = {'$set': {'course': 'test'}}
+        collection.update_one(query, newValues)
+    
+    for i in idToCourseProf:
+    
+        print(i + ": " + str(idToCourseProf[i]))
+
+
+def main():
+    #scrapeData()
+    #buildMongoDBData()
+    #buildDictFromMongoDB()
+    if __name__ == "__main__":
+	    app.run()
+
+main()
