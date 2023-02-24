@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Form, Card, InputGroup, Button } from 'react-bootstrap';
+import { Container, Row, Col, Form, InputGroup, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
 import QRCode from 'qrcode';
+import LinkButton from'./LinkButton';
 
 function Input() {
     const [id, setid] = useState("");
@@ -60,26 +61,28 @@ function Input() {
                     Submit
                 </Button>
             </Form>
-            <Row className="pt-3">
-                <Col>
-                    {course ? <p>Course Title: {course}</p> : null}
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                    {prof ? <p>Professor: {prof}</p> : null}
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                    {share_url ? <p>GroupMe Link: {share_url}</p> : null}
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                    {imageUrl ? <img src={imageUrl}/> : null}
-                </Col>
-            </Row>
+            <Container className="text-center">
+                <Row className="pt-3">
+                    <Col>
+                        {course ? <h3>Course Title: {course}</h3> : null}
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        {prof ? <h3>Professor: {prof}</h3> : null}
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        {share_url ? <LinkButton link={share_url}>GroupMe Link</LinkButton> : null}
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        {imageUrl ? <img src={imageUrl} alt="QR Code should be here :(" style={{width:"250px",height:"250px"}}/> : null}
+                    </Col>
+                </Row>
+            </Container>
         </Container>
     )
 }
