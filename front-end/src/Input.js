@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Form, InputGroup, Button } from 'react-bootstrap';
+import { Container, Row, Col, Form, Card, InputGroup, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
+import QRCode from 'qrcode';
 
 function Input() {
     const [id, setid] = useState("");
     const [course, setCourse] = useState("");
     const [prof, setProf] = useState("");
     const [share_url, setShare_url] = useState("")
+    const [imageUrl, setImageUrl] = useState("")
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -21,6 +23,19 @@ function Input() {
             console.error(error)
         });
     };
+
+    useEffect(() => {
+        // generate qr code
+        if (share_url) {
+            QRCode.toDataURL(share_url)
+        .then((response) => {
+            setImageUrl(response)
+        })
+        .catch((error) => {
+            console.error(error)
+        })
+        }
+    }, [share_url])
 
     const handleInputChange = (event) => {
         // const { name, value } = event.target;
@@ -45,19 +60,24 @@ function Input() {
                     Submit
                 </Button>
             </Form>
-            <Row>
+            <Row className="pt-3">
                 <Col>
-                    <p>{course}</p>
+                    {course ? <p>Course Title: {course}</p> : null}
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <p>{prof}</p>
+                    {prof ? <p>Professor: {prof}</p> : null}
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <p>{share_url}</p>
+                    {share_url ? <p>GroupMe Link: {share_url}</p> : null}
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    {imageUrl ? <img src={imageUrl}/> : null}
                 </Col>
             </Row>
         </Container>
