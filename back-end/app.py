@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from pymongo import MongoClient
 from bs4 import BeautifulSoup
 import requests
@@ -9,6 +9,12 @@ coursesProfs = {}
 
 # stores data pulled from MongoDB database and will be used to return proper course, prof, and groupMe
 idToCourseProf = {}
+
+client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
+                                tlsAllowInvalidCertificates=True)
+db = client['coursesProfs']
+collection = db['coursesProfs']
+groupMe_token = '4d2d3cf09548013bf6670242ac110002'
 
 class ProfCourse:
     def __init__(self, prof, course, dept, courseNumber, year, season, groupMe):
@@ -30,6 +36,67 @@ class ProfCourse:
 
     def __hash__(self):
         return hash(str(self))
+
+
+@app.route("/")
+def hello():
+    return "Hello World!"
+
+
+#@app.route("/create")
+def create_group():
+    payload = {'name': 'test4', 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
+    headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
+    r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers)
+    #r = requests.post('https://api.groupme.com/v3/groups/92404620/destroy', headers=headers)
+    #r = requests.get('https://api.groupme.com/v3/groups/92404620/destroy?token=4d2d3cf09548013bf6670242ac110002')
+    return r.json()
+
+
+@app.route('/delete')
+def delete_group():
+    headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
+    requests.post('https://api.groupme.com/v3/groups/92430368/destroy', headers=headers)
+
+    newValues = {'$set': {'groupMe': {}}}
+    query = {'prof': "Rudrappa, Sharmila", 'course': "Reproductive Justice and Race", 'courseNumber': "330M", 'dept': "AAS"}
+    collection.update_one(query, newValues)
+
+    return "deleted"
+
+
+@app.route('/getGroup', methods=['GET', 'POST'])
+def getGroup():
+    if request.method == 'POST':
+        id = request.form.get('id')
+        if (id in idToCourseProf):
+            courseProf = idToCourseProf[id]
+            if (len(courseProf.groupMe) == 0):
+                # create groupMe for course
+                payload = {'name': courseProf.dept + " " + courseProf.courseNumber, 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
+                headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
+                r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers).json()
+                if (r['meta']['code'] != 201):
+                    print("Error occurred while trying to create GroupMe group.")
+
+                else:
+                    groupMeResponse = r['response']
+                    # push it to mongoDB database
+                    groupMeDict = {'id': groupMeResponse['id'], 'share_url': groupMeResponse['share_url']}
+                    newValues = {'$set': {'groupMe': groupMeDict}}
+                    query = {'prof': courseProf.prof, 'course': courseProf.course, 'courseNumber': courseProf.courseNumber, 'dept': courseProf.dept}
+                    collection.update_one(query, newValues)
+
+                    # update local groupMe info in courseProf
+                    courseProf.groupMe = groupMeDict
+                
+            return courseProf.groupMe
+
+        else:
+            return "Code not found"
+
+    return render_template('form.html')
+
 
 def scrapeData():
     url = 'https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=2023&semester=2&department=&course_number=&course_title=&unique=&instructor_first=&instructor_last=&course_type=In+Residence&search=Search'
@@ -132,20 +199,15 @@ def scrapeData():
         f.close()
     '''
 
-@app.route("/")
-def hello():
-    return "Hello World!"
 
-access_token = '4d2d3cf09548013bf6670242ac110002'
+def buildDictFromMongoDB():
+    results = collection.find()
+    for doc in results:
+        curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'], doc['groupMe'])
+        for i in doc['ids']:
+            idToCourseProf[i] = curCourseProf
+            curCourseProf.ids.append(i)
 
-@app.route("/create")
-def create_group():
-    payload = {'name': 'test4', 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
-    headers = {'Content-Type': 'application/json', 'X-Access-Token': access_token}
-    r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers)
-    #r = requests.post('https://api.groupme.com/v3/groups/92404620/destroy', headers=headers)
-    #r = requests.get('https://api.groupme.com/v3/groups/92404620/destroy?token=4d2d3cf09548013bf6670242ac110002')
-    return r.json()
 
 def buildMongoDBData():
     client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
@@ -163,56 +225,17 @@ def buildMongoDBData():
     print(result.inserted_ids)
 
 
-def buildDictFromMongoDB():
-    client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
-                                tlsAllowInvalidCertificates=True)
-    db = client['coursesProfs']
-    collection = db['coursesProfs']
-
-    results = collection.find()
-    for doc in results:
-        curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'], doc['groupMe'])
-        for i in doc['ids']:
-            idToCourseProf[i] = curCourseProf
-            curCourseProf.ids.append(i)
-
-def createGroupMe():
-    client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
-                                tlsAllowInvalidCertificates=True)
-    db = client['coursesProfs']
-    collection = db['coursesProfs']
-
+def printOutCourses():
     for i in idToCourseProf:
-        curCourseProf = idToCourseProf[i]
+        print(i + ": " + str(idToCourseProf[i]))
+        print(idToCourseProf[i].groupMe)
 
-        # no groupMe link for current course
-        if (len(curCourseProf.groupMe) == 0):
-            # create groupMe for course
-            payload = {'name': curCourseProf.course + ' ' + curCourseProf.prof, 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
-            headers = {'Content-Type': 'application/json', 'X-Access-Token': access_token}
-            r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers).json()
-            if (r['meta']['code'] != 201):
-                print("Error occurred while trying to create GroupMe group.")
-            else:
-                groupMeResponse = r['response']
-                # push it to mongoDB database
-                groupMeDict = {'id': groupMeResponse['id'], 'share_url': groupMeResponse['share_url']}
-                newValues = {'$set': {'groupMe': groupMeDict}}
-                query = {'prof': curCourseProf.prof, 'course': curCourseProf.course, 'courseNumber': curCourseProf.courseNumber, 'dept': curCourseProf.dept}
-                collection.update_one(query, newValues)
-
-                # update local groupMe info in courseProf
-                curCourseProf.groupMe = groupMeDict
 
 def main():
     #scrapeData()
     #buildMongoDBData()
-    #buildDictFromMongoDB()
-    #createGroupMe()
+    buildDictFromMongoDB()
     
-    for i in idToCourseProf:
-        print(i + ": " + str(idToCourseProf[i]))
-        print(idToCourseProf[i].groupMe)
     if __name__ == "__main__":
 	    app.run()
 
