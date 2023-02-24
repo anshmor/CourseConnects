@@ -33,7 +33,7 @@ function Input() {
     }
 
     return (
-        <Container>
+        <Container className="pt-3">
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formId">
                     <Form.Label>Class ID</Form.Label>
