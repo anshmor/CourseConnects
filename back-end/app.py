@@ -1,9 +1,11 @@
 from flask import Flask, request, render_template
 from pymongo import MongoClient
 from bs4 import BeautifulSoup
+from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
+CORS(app)
 # used only when scrapingData and pushing it to MongoDB database
 coursesProfs = {}
 
@@ -14,6 +16,7 @@ client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mo
                                 tlsAllowInvalidCertificates=True)
 db = client['coursesProfs']
 collection = db['coursesProfs']
+# used for groupMe API
 groupMe_token = '4d2d3cf09548013bf6670242ac110002'
 
 class ProfCourse:
@@ -68,7 +71,7 @@ def delete_group():
 @app.route('/getGroup', methods=['GET', 'POST'])
 def getGroup():
     if request.method == 'POST':
-        id = request.form.get('id')
+        id = request.get_json().get('id')
         if (id in idToCourseProf):
             courseProf = idToCourseProf[id]
             if (len(courseProf.groupMe) == 0):
@@ -90,10 +93,10 @@ def getGroup():
                     # update local groupMe info in courseProf
                     courseProf.groupMe = groupMeDict
                 
-            return courseProf.groupMe
+            return vars(courseProf)
 
         else:
-            return "Code not found"
+            return {'share_url': 'Code not found'}
 
     return render_template('form.html')
 
