@@ -4,7 +4,10 @@ from bs4 import BeautifulSoup
 import requests
 
 app = Flask(__name__)
+# used only when scrapingData and pushing it to MongoDB database
 coursesProfs = {}
+
+# stores data pulled from MongoDB database and will be used to return proper course, prof, and groupMe
 idToCourseProf = {}
 
 class ProfCourse:
@@ -121,11 +124,13 @@ def scrapeData():
 
 
     # write all course and prof combos to text file
+    '''
     with open('profCourses.txt', 'w') as f: 
         for i in coursesProfs:
             curCourseProf = coursesProfs[i]
             f.write(str(curCourseProf) + '\n')
         f.close()
+    '''
 
 @app.route("/")
 def hello():
@@ -142,21 +147,20 @@ def create_group():
     #r = requests.get('https://api.groupme.com/v3/groups/92404620/destroy?token=4d2d3cf09548013bf6670242ac110002')
     return r.json()
 
-@app.route('/delete')
-def delete_group():
-    headers = {'Content-Type': 'application/json', 'X-Access-Token': access_token}
-    requests.post('https://api.groupme.com/v3/groups/92405151/destroy', headers=headers)
-    return "deleted"
-
 def buildMongoDBData():
     client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
                                 tlsAllowInvalidCertificates=True)
     db = client['coursesProfs']
     collection = db['coursesProfs']
+    toInsert = []
     for i in coursesProfs:
-        collection.insert_one(vars(coursesProfs[i]))
+        curCourseProf = coursesProfs[i]
+        toInsert.append(vars(curCourseProf))
+        #collection.insert_one(vars(coursesProfs[i]))
         #collection.insert_one({"name": "bob", "profession": "software engineer"})
-        break
+        
+    result = collection.insert_many(toInsert)
+    print(result.inserted_ids)
 
 
 def buildDictFromMongoDB():
@@ -165,7 +169,6 @@ def buildDictFromMongoDB():
     db = client['coursesProfs']
     collection = db['coursesProfs']
 
-    
     results = collection.find()
     for doc in results:
         curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'], doc['groupMe'])
@@ -204,8 +207,9 @@ def createGroupMe():
 def main():
     #scrapeData()
     #buildMongoDBData()
-    buildDictFromMongoDB()
-    createGroupMe()
+    #buildDictFromMongoDB()
+    #createGroupMe()
+    
     for i in idToCourseProf:
         print(i + ": " + str(idToCourseProf[i]))
         print(idToCourseProf[i].groupMe)
