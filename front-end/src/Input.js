@@ -9,43 +9,63 @@ function Input() {
     const [id, setid] = useState("");
     const [course, setCourse] = useState("");
     const [prof, setProf] = useState("");
-    const [share_url, setShare_url] = useState("")
-    const [imageUrl, setImageUrl] = useState("")
+    const [share_url, setShare_url] = useState("");
+    const [imageUrl, setImageUrl] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        if (id.length != 5) {
+            setShare_url('');
+            setCourse('');
+            setProf('');
+            setImageUrl('');
+            setErrorMessage('Code should be 5 digits long');
+        }
+        else {
         axios.post('http://localhost:5000/getGroup', {'id': id})
-        .then((response) => {
-            setShare_url(response.data.groupMe.share_url)
-            setCourse(response.data.course)
-            setProf(response.data.prof)
-        })
-        .catch((error) => {
-            console.error(error)
-        });
+            .then((response) => {
+                if (response.data.course === "") {
+                    setShare_url('');
+                    setCourse('');
+                    setProf('');
+                    setImageUrl('');
+                    setErrorMessage('Invalid code entered')
+                }
+                else {
+                    setErrorMessage('');
+                    setShare_url(response.data.groupMe.share_url);
+                    setCourse(response.data.dept + " " + response.data.courseNumber + " " + response.data.course);
+                    setProf(response.data.prof);
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+            });
+        }
     };
 
     useEffect(() => {
         // generate qr code
         if (share_url) {
             QRCode.toDataURL(share_url)
-        .then((response) => {
-            setImageUrl(response)
-        })
-        .catch((error) => {
-            console.error(error)
-        })
+            .then((response) => {
+                setImageUrl(response)
+            })
+            .catch((error) => {
+                console.error(error)
+            })
         }
     }, [share_url])
 
     const handleInputChange = (event) => {
         // const { name, value } = event.target;
         // setid((prevFormData) => ({ ...prevFormData, [name]: value }));
-        setid(event.target.value)
+        setid(event.target.value);
     };
 
     function validateInput() {
-        return id.length === 5 || id.length === 0
+        return id.length === 5 || id.length === 0;
     }
 
     return (
@@ -64,7 +84,12 @@ function Input() {
             <Container className="text-center">
                 <Row className="pt-3">
                     <Col>
-                        {course ? <h3>Course Title: {course}</h3> : null}
+                        {errorMessage ? <h3>{errorMessage}</h3> : null}
+                    </Col>
+                </Row>
+                <Row className="pt-3">
+                    <Col>
+                        {course ? <h3>Course: {course}</h3> : null}
                     </Col>
                 </Row>
                 <Row>

@@ -68,37 +68,34 @@ def delete_group():
     return "deleted"
 
 
-@app.route('/getGroup', methods=['GET', 'POST'])
+@app.route('/getGroup', methods=['POST'])
 def getGroup():
-    if request.method == 'POST':
-        id = request.get_json().get('id')
-        if (id in idToCourseProf):
-            courseProf = idToCourseProf[id]
-            if (len(courseProf.groupMe) == 0):
-                # create groupMe for course
-                payload = {'name': courseProf.dept + " " + courseProf.courseNumber, 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
-                headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
-                r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers).json()
-                if (r['meta']['code'] != 201):
-                    print("Error occurred while trying to create GroupMe group.")
+    id = request.get_json().get('id')
+    if (id in idToCourseProf):
+        courseProf = idToCourseProf[id]
+        if (len(courseProf.groupMe) == 0):
+            # create groupMe for course
+            payload = {'name': courseProf.dept + " " + courseProf.courseNumber, 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
+            headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
+            r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers).json()
+            if (r['meta']['code'] != 201):
+                print("Error occurred while trying to create GroupMe group.")
 
-                else:
-                    groupMeResponse = r['response']
-                    # push it to mongoDB database
-                    groupMeDict = {'id': groupMeResponse['id'], 'share_url': groupMeResponse['share_url']}
-                    newValues = {'$set': {'groupMe': groupMeDict}}
-                    query = {'prof': courseProf.prof, 'course': courseProf.course, 'courseNumber': courseProf.courseNumber, 'dept': courseProf.dept}
-                    collection.update_one(query, newValues)
+            else:
+                groupMeResponse = r['response']
+                # push it to mongoDB database
+                groupMeDict = {'id': groupMeResponse['id'], 'share_url': groupMeResponse['share_url']}
+                newValues = {'$set': {'groupMe': groupMeDict}}
+                query = {'prof': courseProf.prof, 'course': courseProf.course, 'courseNumber': courseProf.courseNumber, 'dept': courseProf.dept}
+                collection.update_one(query, newValues)
 
-                    # update local groupMe info in courseProf
-                    courseProf.groupMe = groupMeDict
-                
-            return vars(courseProf)
+                # update local groupMe info in courseProf
+                courseProf.groupMe = groupMeDict
+            
+        return vars(courseProf)
 
-        else:
-            return {'share_url': 'Code not found'}
-
-    return render_template('form.html')
+    else:
+        return vars(ProfCourse('','','','','','',{'share_url':'', 'id':''}))
 
 
 def scrapeData():
