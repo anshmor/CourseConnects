@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Form, InputGroup, Button } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
 import QRCode from 'qrcode';
@@ -15,7 +15,7 @@ function Input() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        if (id.length != 5) {
+        if (id.length !== 5) {
             setShare_url('');
             setCourse('');
             setProf('');
@@ -59,8 +59,6 @@ function Input() {
     }, [share_url])
 
     const handleInputChange = (event) => {
-        // const { name, value } = event.target;
-        // setid((prevFormData) => ({ ...prevFormData, [name]: value }));
         setid(event.target.value);
     };
 
@@ -72,7 +70,7 @@ function Input() {
         <Container className="pt-3">
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formId">
-                    <Form.Label>Class ID</Form.Label>
+                    <Form.Label>Course ID</Form.Label>
                     <Form.Control type="text" name="id" placeholder="Unique 5 digit ID"
                     onChange={handleInputChange} className={validateInput() ? 'is_valid' : 'is-invalid'} size='lg'/>
                 </Form.Group>
