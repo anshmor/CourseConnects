@@ -32,6 +32,13 @@ function Input() {
                     setImageUrl('');
                     setErrorMessage('Invalid code entered')
                 }
+                else if (response.data.groupMe.share_url.startsWith("Error")){
+                    setCourse(response.data.dept + " " + response.data.courseNumber + " " + response.data.course);
+                    setProf(response.data.prof);
+                    setErrorMessage(response.data.groupMe.share_url);
+                    setShare_url('');
+                    setImageUrl('');
+                }
                 else {
                     setErrorMessage('');
                     setShare_url(response.data.groupMe.share_url);

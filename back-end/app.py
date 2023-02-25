@@ -15,9 +15,9 @@ idToCourseProf = {}
 client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
                                 tlsAllowInvalidCertificates=True)
 db = client['coursesProfs']
-collection = db['coursesProfs']
+collection = db['Spring2023']
 # used for groupMe API
-groupMe_token = '4d2d3cf09548013bf6670242ac110002'
+groupMe_token = '09e8f47096df013bf6670242ac110002'
 
 class ProfCourse:
     def __init__(self, prof, course, dept, courseNumber, year, season, groupMe):
@@ -80,6 +80,9 @@ def getGroup():
             r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers).json()
             if (r['meta']['code'] != 201):
                 print("Error occurred while trying to create GroupMe group.")
+                print(r)
+                return vars(ProfCourse(courseProf.prof, courseProf.course, courseProf.dept, courseProf.courseNumber,
+                                        courseProf.year, courseProf.season, {'share_url': 'Error with your GroupMe link', 'id': ''}))
 
             else:
                 groupMeResponse = r['response']
@@ -191,13 +194,13 @@ def scrapeData():
 
 
     # write all course and prof combos to text file
-    '''
+    
     with open('profCourses.txt', 'w') as f: 
         for i in coursesProfs:
             curCourseProf = coursesProfs[i]
             f.write(str(curCourseProf) + '\n')
         f.close()
-    '''
+    
 
 
 def buildDictFromMongoDB():
@@ -210,16 +213,10 @@ def buildDictFromMongoDB():
 
 
 def buildMongoDBData():
-    client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
-                                tlsAllowInvalidCertificates=True)
-    db = client['coursesProfs']
-    collection = db['coursesProfs']
     toInsert = []
     for i in coursesProfs:
-        curCourseProf = coursesProfs[i]
-        toInsert.append(vars(curCourseProf))
-        #collection.insert_one(vars(coursesProfs[i]))
-        #collection.insert_one({"name": "bob", "profession": "software engineer"})
+        courseProf = coursesProfs[i]
+        toInsert.append(vars(courseProf))
         
     result = collection.insert_many(toInsert)
     print(result.inserted_ids)
