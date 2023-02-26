@@ -12,6 +12,8 @@ function Input() {
     const [share_url, setShare_url] = useState("");
     const [imageUrl, setImageUrl] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const backend_uri = process.env.REACT_APP_BACKEND_URI
+    const app_token = process.env.REACT_APP_TOKEN
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -23,32 +25,37 @@ function Input() {
             setErrorMessage('Code should be 5 digits long');
         }
         else {
-        axios.post('http://localhost:5000/getGroup', {'id': id})
-            .then((response) => {
-                if (response.data.course === "") {
+            axios.post(backend_uri + '/getGroup', {'id': id, 'app_token': app_token})
+                .then((response) => {
+                    if (response.data.course === "") {
+                        setShare_url('');
+                        setCourse('');
+                        setProf('');
+                        setImageUrl('');
+                        setErrorMessage('Course not found')
+                    }
+                    else if (response.data.groupMe.share_url.startsWith("Error")){
+                        setCourse(response.data.dept + " " + response.data.courseNumber + " " + response.data.course);
+                        setProf(response.data.prof);
+                        setErrorMessage(response.data.groupMe.share_url);
+                        setShare_url('');
+                        setImageUrl('');
+                    }
+                    else {
+                        setErrorMessage('');
+                        setShare_url(response.data.groupMe.share_url);
+                        setCourse(response.data.dept + " " + response.data.courseNumber + " " + response.data.course);
+                        setProf(response.data.prof);
+                    }
+                })
+                .catch((error) => {
                     setShare_url('');
                     setCourse('');
                     setProf('');
                     setImageUrl('');
-                    setErrorMessage('Invalid code entered')
-                }
-                else if (response.data.groupMe.share_url.startsWith("Error")){
-                    setCourse(response.data.dept + " " + response.data.courseNumber + " " + response.data.course);
-                    setProf(response.data.prof);
-                    setErrorMessage(response.data.groupMe.share_url);
-                    setShare_url('');
-                    setImageUrl('');
-                }
-                else {
-                    setErrorMessage('');
-                    setShare_url(response.data.groupMe.share_url);
-                    setCourse(response.data.dept + " " + response.data.courseNumber + " " + response.data.course);
-                    setProf(response.data.prof);
-                }
-            })
-            .catch((error) => {
-                console.error(error)
-            });
+                    setErrorMessage('Error getting class information')
+                    console.error(error)
+                });
         }
     };
 
@@ -61,6 +68,7 @@ function Input() {
             })
             .catch((error) => {
                 console.error(error)
+                setImageUrl('');
             })
         }
     }, [share_url])

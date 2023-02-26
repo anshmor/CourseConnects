@@ -17,6 +17,7 @@ client = MongoClient("mongodb+srv://" + os.getenv("MONGO_USER") + ":" + os.geten
 db = client['coursesProfs']
 collection = db['Spring2023']
 groupMe_token = os.getenv("GROUPME_TOKEN")
+app_token = os.getenv("APP_TOKEN")
 
 # used only when scrapingData and pushing it to MongoDB database
 coursesProfs = {}
@@ -69,7 +70,14 @@ def delete_group():
 # if groupMe doesn't exist for requested id, create groupMe, update courseProf object in MongoDB
 @app.route('/getGroup', methods=['POST'])
 def getGroup():
-    id = request.get_json().get('id')
+    data = request.get_json()
+    id = data.get('id')
+
+    # ensure only my react front end can make calls
+    request_token = data.get('app_token')
+    if (request_token != app_token):
+        return "Invalid app_token"
+    
     if (id in idToCourseProf):
         courseProf = idToCourseProf[id]
         if (len(courseProf.groupMe) == 0):
