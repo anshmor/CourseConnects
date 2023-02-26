@@ -2,23 +2,29 @@ from flask import Flask, request, render_template
 from pymongo import MongoClient
 from bs4 import BeautifulSoup
 from flask_cors import CORS
+from dotenv import load_dotenv
+import os
 import requests
 
 app = Flask(__name__)
 CORS(app)
+
+# env variables, setting up Mongo connection and GroupMe token
+load_dotenv()
+client = MongoClient("mongodb+srv://" + os.getenv("MONGO_USER") + ":" + os.getenv("MONGO_TOKEN") + 
+                     "@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
+                                tlsAllowInvalidCertificates=True)
+db = client['coursesProfs']
+collection = db['Spring2023']
+groupMe_token = os.getenv("GROUPME_TOKEN")
+
 # used only when scrapingData and pushing it to MongoDB database
 coursesProfs = {}
 
 # stores data pulled from MongoDB database and will be used to return proper course, prof, and groupMe
 idToCourseProf = {}
 
-client = MongoClient("mongodb+srv://papbo:Xb6VsAPeRTbux9Dw@profcourse.1l1grej.mongodb.net/?retryWrites=true&w=majority", tls=True,
-                                tlsAllowInvalidCertificates=True)
-db = client['coursesProfs']
-collection = db['Spring2023']
-# used for groupMe API
-groupMe_token = '09e8f47096df013bf6670242ac110002'
-
+# ProfCourse object which is stored in MongoDB for each prof course combo
 class ProfCourse:
     def __init__(self, prof, course, dept, courseNumber, year, season, groupMe):
         self.prof = prof
@@ -45,21 +51,13 @@ class ProfCourse:
 def hello():
     return "Hello World!"
 
-
-#@app.route("/create")
-def create_group():
-    payload = {'name': 'test4', 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
-    headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
-    r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers)
-    #r = requests.post('https://api.groupme.com/v3/groups/92404620/destroy', headers=headers)
-    #r = requests.get('https://api.groupme.com/v3/groups/92404620/destroy?token=4d2d3cf09548013bf6670242ac110002')
-    return r.json()
-
-
+# for testing
 @app.route('/delete')
 def delete_group():
     headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
     requests.post('https://api.groupme.com/v3/groups/92430368/destroy', headers=headers)
+    #r = requests.post('https://api.groupme.com/v3/groups/92404620/destroy', headers=headers)
+    #r = requests.get('https://api.groupme.com/v3/groups/92404620/destroy?token=4d2d3cf09548013bf6670242ac110002')
 
     newValues = {'$set': {'groupMe': {}}}
     query = {'prof': "Rudrappa, Sharmila", 'course': "Reproductive Justice and Race", 'courseNumber': "330M", 'dept': "AAS"}
@@ -67,7 +65,8 @@ def delete_group():
 
     return "deleted"
 
-
+# receives id from front end, returns corresponding course info and groupMe info
+# if groupMe doesn't exist for requested id, create groupMe, update courseProf object in MongoDB
 @app.route('/getGroup', methods=['POST'])
 def getGroup():
     id = request.get_json().get('id')
@@ -202,7 +201,7 @@ def scrapeData():
         f.close()
     
 
-
+# accesses mongoDB database and builds a hashMap from it
 def buildDictFromMongoDB():
     results = collection.find()
     for doc in results:
@@ -212,6 +211,7 @@ def buildDictFromMongoDB():
             curCourseProf.ids.append(i)
 
 
+# build the mongoDB database from courseProfs hashMap. scrapeData() should've been called before
 def buildMongoDBData():
     toInsert = []
     for i in coursesProfs:
@@ -221,7 +221,7 @@ def buildMongoDBData():
     result = collection.insert_many(toInsert)
     print(result.inserted_ids)
 
-
+# prints out all id's and corresponding courses
 def printOutCourses():
     for i in idToCourseProf:
         print(i + ": " + str(idToCourseProf[i]))
