@@ -13,7 +13,7 @@ function Input() {
     const [imageUrl, setImageUrl] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const inputRef = useRef(null);
-    const backend_uri = 'http://localhost:8000'
+    const backend_uri = 'https://courseconnects.herokuapp.com'
 
     const handleSubmit = (event) => {
         event.preventDefault();
