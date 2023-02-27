@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
@@ -12,11 +12,13 @@ function Input() {
     const [share_url, setShare_url] = useState("");
     const [imageUrl, setImageUrl] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const inputRef = useRef(null);
     const backend_uri = process.env.REACT_APP_BACKEND_URI
     const app_token = process.env.REACT_APP_TOKEN
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        //inputRef.current.select();
         if (id.length !== 5) {
             setShare_url('');
             setCourse('');
@@ -81,12 +83,16 @@ function Input() {
         return id.length === 5 || id.length === 0;
     }
 
+    function handleFocus() {
+        inputRef.current.select()
+    }
+
     return (
         <Container className="pt-3">
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formId">
                     <Form.Label>Course ID</Form.Label>
-                    <Form.Control type="text" name="id" placeholder="Unique 5 digit ID"
+                    <Form.Control type="text" name="id" placeholder="Unique 5 digit ID" ref={inputRef} onFocus={handleFocus}
                     onChange={handleInputChange} className={validateInput() ? 'is_valid' : 'is-invalid'} size='lg'/>
                 </Form.Group>
 
