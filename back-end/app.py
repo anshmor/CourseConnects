@@ -50,7 +50,7 @@ class ProfCourse:
 def getGroup():
     referer = request.headers.get("Referer")
     # ensure only my react front end can make calls
-    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/':
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' and referer != 'http://localhost:3000/':
         abort(403)
 
     data = request.get_json()
@@ -100,7 +100,5 @@ def buildDictFromMongoDB():
 def main():
     buildDictFromMongoDB()
     
-    if __name__ == "__main__":
-	    app.run()
 
 main()

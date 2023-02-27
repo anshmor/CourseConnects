@@ -13,7 +13,7 @@ function Input() {
     const [imageUrl, setImageUrl] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const inputRef = useRef(null);
-    const backend_uri = process.env.REACT_APP_BACKEND_URI
+    const backend_uri = 'http://localhost:8000'
 
     const handleSubmit = (event) => {
         event.preventDefault();
