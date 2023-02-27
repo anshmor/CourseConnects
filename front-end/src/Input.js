@@ -14,7 +14,6 @@ function Input() {
     const [errorMessage, setErrorMessage] = useState("");
     const inputRef = useRef(null);
     const backend_uri = process.env.REACT_APP_BACKEND_URI
-    const app_token = process.env.REACT_APP_TOKEN
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -27,7 +26,7 @@ function Input() {
             setErrorMessage('Code should be 5 digits long');
         }
         else {
-            axios.post(backend_uri + '/getGroup', {'id': id, 'app_token': app_token})
+            axios.post(backend_uri + '/getGroup', {'id': id})
                 .then((response) => {
                     if (response.data.course === "") {
                         setShare_url('');

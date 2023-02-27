@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, abort
 from pymongo import MongoClient
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -48,14 +48,14 @@ class ProfCourse:
 # if groupMe doesn't exist for requested id, create groupMe, update courseProf object in MongoDB
 @app.route('/getGroup', methods=['POST'])
 def getGroup():
+    referer = request.headers.get("Referer")
+    # ensure only my react front end can make calls
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/':
+        abort(403)
+
     data = request.get_json()
     id = data.get('id')
 
-    # ensure only my react front end can make calls
-    request_token = data.get('app_token')
-    if (request_token != app_token):
-        return "Invalid app_token"
-    
     if (id in idToCourseProf):
         courseProf = idToCourseProf[id]
         if (len(courseProf.groupMe) == 0):
