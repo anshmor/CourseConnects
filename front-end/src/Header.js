@@ -8,7 +8,7 @@ function Header() {
         <Card>
             <Card.Img style={{ height:120, border: "none" }} src="grey.jpg"></Card.Img>
             <Card.ImgOverlay>
-                <Card.Title style={{fontSize: "50px", fontFamily: "Verdana"}} className="text-center">CourseConnects</Card.Title>
+                <Card.Title style={{fontSize: "50px"}} className="text-center">CourseConnects</Card.Title>
                 <Card.Text className="text-center" style={{fontSize: "20px", fontFamily: "Verdana"}}>
                 Find the GroupMe for each of your UT courses!
                 </Card.Text>
