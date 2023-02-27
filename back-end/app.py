@@ -43,6 +43,9 @@ class ProfCourse:
     def __hash__(self):
         return hash(str(self))
 
+@app.route('/')
+def test():
+    return 'Hello World'
 
 # receives id from front end, returns corresponding course info and groupMe info
 # if groupMe doesn't exist for requested id, create groupMe, update courseProf object in MongoDB
