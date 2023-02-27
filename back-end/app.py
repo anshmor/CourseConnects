@@ -16,7 +16,6 @@ client = MongoClient("mongodb+srv://" + os.getenv("MONGO_USER") + ":" + os.geten
 db = client['coursesProfs']
 collection = db['Spring2023']
 groupMe_token = os.getenv("GROUPME_TOKEN")
-app_token = os.getenv("APP_TOKEN")
 
 # stores data pulled from MongoDB database and will be used to return proper course, prof, and groupMe
 idToCourseProf = {}
@@ -102,6 +101,7 @@ def buildDictFromMongoDB():
 
 def main():
     buildDictFromMongoDB()
-    
+    if __name__ == '__main__':
+        app.run()
 
 main()
