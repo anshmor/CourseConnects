@@ -22,3 +22,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_COURSECONNECTS_ED859 }}'
           channelId: live
           projectId: courseconnects-ed859
+          entryPoint: ./front-end
