@@ -49,7 +49,7 @@ class ProfCourse:
 def getGroup():
     referer = request.headers.get("Referer")
     # ensure only my react front end can make calls
-    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' and referer != 'http://localhost:3000/':
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/':
         abort(403)
 
     data = request.get_json()
