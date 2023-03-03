@@ -1,4 +1,4 @@
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify
 from pymongo import MongoClient
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -19,6 +19,7 @@ groupMe_token = os.getenv("GROUPME_TOKEN")
 
 # stores data pulled from MongoDB database and will be used to return proper course, prof, and groupMe
 idToCourseProf = {}
+courseCodeToCourseProf = {}
 
 # ProfCourse object which is stored in MongoDB for each prof course combo
 class ProfCourse:
@@ -41,19 +42,35 @@ class ProfCourse:
 
     def __hash__(self):
         return hash(str(self))
-    
+
+@app.route('/getGroupsCourseCode')
+def getGroupCourseCode():
+    referer = request.headers.get('Referer')
+    # ensure only my react front end can make calls
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/':
+        abort(403)
+
+    dept = request.args.get('dept')
+    courseCode  = request.args.get('courseCode')
+
+    if (dept + courseCode in courseCodeToCourseProf):
+        courseProfsMatch = [vars(i) for i in courseCodeToCourseProf[dept + courseCode]]
+        return jsonify(courseProfsMatch)
+    else:
+        return 'No Matches'
+
+
 
 # receives id from front end, returns corresponding course info and groupMe info
 # if groupMe doesn't exist for requested id, create groupMe, update courseProf object in MongoDB
-@app.route('/getGroup', methods=['POST'])
+@app.route('/getGroup')
 def getGroup():
     referer = request.headers.get("Referer")
     # ensure only my react front end can make calls
     if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/':
         abort(403)
 
-    data = request.get_json()
-    id = data.get('id')
+    id = request.args.get('id')
 
     if (id in idToCourseProf):
         courseProf = idToCourseProf[id]
@@ -94,6 +111,14 @@ def buildDictFromMongoDB():
         for i in doc['ids']:
             idToCourseProf[i] = curCourseProf
             curCourseProf.ids.append(i)
+
+        deptCourseNumber = curCourseProf.dept + curCourseProf.courseNumber
+        if deptCourseNumber in courseCodeToCourseProf :
+            courseCodeToCourseProf[deptCourseNumber].append(curCourseProf)
+        else :
+            courseCodeToCourseProf[deptCourseNumber] = []
+            courseCodeToCourseProf[deptCourseNumber].append(curCourseProf)
+        
 
 
 def main():
