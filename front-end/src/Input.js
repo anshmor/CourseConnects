@@ -48,7 +48,7 @@ function Input() {
 
     const handleCourseProfSelection = (course, prof, dept, courseCode, groupMeUrl) => {
         setShare_url(groupMeUrl);
-        setCourse(dept + " " + " " + course);
+        setCourse(dept + " " + courseCode + " " + course);
         setProf(prof);
         setErrorMessage('');
         setCoursesProfs([]);
