@@ -43,6 +43,7 @@ class ProfCourse:
     def __hash__(self):
         return hash(str(self))
 
+
 @app.route('/getGroupsCourseCode')
 def getGroupCourseCode():
     referer = request.headers.get('Referer')

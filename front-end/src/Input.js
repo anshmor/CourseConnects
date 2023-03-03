@@ -46,19 +46,18 @@ function Input() {
         console.error(error)
     };
 
-    const handleInvalidInput = () => {
-        setShare_url('');
-        setCourse('');
-        setProf('');
-        setImageUrl('');
-        setErrorMessage('Invalid Input');
+    const handleCourseProfSelection = (course, prof, dept, courseCode, groupMeUrl) => {
+        setShare_url(groupMeUrl);
+        setCourse(dept + " " + " " + course);
+        setProf(prof);
+        setErrorMessage('');
+        setCoursesProfs([]);
     }
 
-    const handleCourseProfSelection = (id) => {
-        sendId(id);
-    }
 
-    function sendId(id) {
+    const handleIDSubmit = (event) => {
+        event.preventDefault();
+        //inputRef.current.select();
         setShare_url('');
         setCourse('');
         setProf('');
@@ -66,7 +65,7 @@ function Input() {
         setErrorMessage('');
         setCoursesProfs([]);
         if (!validateID() || id.length === 0) {
-            handleInvalidInput()
+            setErrorMessage('Invalid Input');
          }
         else {
             axios.get(backend_uri + '/getGroup', {
@@ -93,12 +92,6 @@ function Input() {
                     handleError(error);
                 });
         }
-    }
-
-    const handleIDSubmit = (event) => {
-        event.preventDefault();
-        //inputRef.current.select();
-        sendId(id);
     };
 
     const handleCourseSubmit = (event) => {
@@ -110,7 +103,7 @@ function Input() {
         setErrorMessage('');
         setCoursesProfs([]);
         if (!validateCourse() || courseCode.length === 0) {
-            handleInvalidInput();
+            setErrorMessage('Invalid Input');
         }
         else {
             let temp = courseCode.trim().split(/\s+/);
@@ -258,8 +251,9 @@ function Input() {
             </Form>
             <Container className="text-center">
                 {coursesProfs.map((courseProf) => {
-                    return <CourseProfCard prof={courseProf.prof} course={courseProf.course} onClick={(id) => handleCourseProfSelection(id)} 
-                    id={courseProf.ids[0]} key={courseProf.course + courseProf.prof}/>;
+                    return <CourseProfCard courseProf={courseProf}
+                    onClick={(course, prof, dept, courseCode, groupMeUrl) => handleCourseProfSelection(course, prof, dept, courseCode, groupMeUrl)} 
+                    key={courseProf.course + courseProf.prof}/>;
                 })}
                 <Row className="pt-3">
                     <Col>
