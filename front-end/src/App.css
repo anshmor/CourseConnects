@@ -1,0 +1,29 @@
+body {
+    background-color: #ffc784;
+}
+
+.orange {
+    background-color: #ffc784;
+}
+
+.my-button {
+    background-color: #e08f1f;
+    color: #000;
+    border-color: #e3a041;
+  }
+  
+.my-button:hover {
+    background-color: #ba7719;
+    color: #000;
+    border-color: #ba7719;
+}
+
+.my-card {
+    border-color: #ba7719;
+    background-color: #fbe6cc;
+}
+
+.header {
+    background-color: #f6d2a5;
+    border-color: #f6b15e;
+}

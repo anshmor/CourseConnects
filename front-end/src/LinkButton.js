@@ -1,10 +1,10 @@
 import Button from 'react-bootstrap/Button';
-//import './LinkButton.css';
+import './App.css';
 
 function LinkButton(props) {
   return (
     <a href = {props.link} target="_blank" rel="noopener noreferrer">
-      <Button variant="primary">GroupMe Link</Button>
+      <Button className="my-button" variant="primary">GroupMe Link</Button>
     </a>
   );
 }

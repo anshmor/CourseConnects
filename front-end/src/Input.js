@@ -3,18 +3,18 @@ import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
 import QRCode from 'qrcode';
-import LinkButton from './LinkButton';
 import CourseProfCard from './CourseProfCard';
+import JoinGroupMe from './JoinGroupMe';
+import './App.css';
 
 function Input() {
     const [id, setid] = useState("");
     const [courseCode, setCourseCode] = useState("");
-    const [course, setCourse] = useState("");
-    const [prof, setProf] = useState("");
-    const [share_url, setShare_url] = useState("");
     const [imageUrl, setImageUrl] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [courseProf, setCourseProf] = useState(null);
     const [coursesProfs, setCoursesProfs] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const IDRef = useRef(null);
     const courseRef = useRef(null);
@@ -38,67 +38,69 @@ function Input() {
     'URD', 'UTL', 'UTS', 'UKR', 'VC', 'VAS', 'VIA', 'VIB', 'VIO', 'VOI', 'VTN', 'WCV', 'WGS', 'WRT', 'YID', 'YOR'])
 
     const handleError = (error) => {
-        setShare_url('');
-        setCourse('');
-        setProf('');
         setImageUrl('');
+        setCourseProf(null);
+        setCoursesProfs([]);
         setErrorMessage('Error getting class information')
         console.error(error)
     };
 
-    const handleCourseProfSelection = (course, prof, dept, courseCode, groupMeUrl) => {
-        setShare_url(groupMeUrl);
-        setCourse(dept + " " + courseCode + " " + course);
-        setProf(prof);
+    const handleCourseProfSelection = (courseProf) => {
         setErrorMessage('');
         setCoursesProfs([]);
+        if (Object.keys(courseProf.groupMe).length === 0 ) {
+            sendId(courseProf.ids[0]);
+
+        }
+        else {
+            setCourseProf(courseProf);
+        }
     }
 
 
     const handleIDSubmit = (event) => {
         event.preventDefault();
-        //inputRef.current.select();
-        setShare_url('');
-        setCourse('');
-        setProf('');
         setImageUrl('');
         setErrorMessage('');
         setCoursesProfs([]);
+        setCourseProf(null);
         if (!validateID() || id.length === 0) {
             setErrorMessage('Invalid Input');
          }
         else {
-            axios.get(backend_uri + '/getGroup', {
-                params: {
-                id: id.trim()
-                }
-                })
-                .then((response) => {
-                    if (response.data.course === "") {
-                        setErrorMessage('Course not found')
-                    }
-                    else if (response.data.groupMe.share_url.startsWith("Error")){
-                        setCourse(response.data.dept + " " + response.data.courseNumber + " " + response.data.course);
-                        setProf(response.data.prof);
-                        setErrorMessage(response.data.groupMe.share_url);
-                    }
-                    else {
-                        setShare_url(response.data.groupMe.share_url);
-                        setCourse(response.data.dept + " " + response.data.courseNumber + " " + response.data.course);
-                        setProf(response.data.prof);
-                    }
-                })
-                .catch((error) => {
-                    handleError(error);
-                });
+            sendId(id.trim());
         }
     };
 
+    function sendId(idToSend) {
+        setLoading(true);
+        axios.get(backend_uri + '/getGroup', {
+            params: {
+            id: idToSend
+            }
+            })
+            .then((response) => {
+                if (response.data.course === "") {
+                    setErrorMessage('Course not found')
+                }
+                else if (response.data.groupMe.share_url.startsWith("Error")){
+                    setErrorMessage(response.data.groupMe.share_url);
+                }
+                else {
+                    setCourseProf(response.data);
+                }
+            })
+            .catch((error) => {
+                handleError(error);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }
+
     const handleCourseSubmit = (event) => {
         event.preventDefault();
-        setShare_url('');
-        setCourse('');
-        setProf('');
+        setCourseProf(null);
         setImageUrl('');
         setErrorMessage('');
         setCoursesProfs([]);
@@ -109,6 +111,7 @@ function Input() {
             let temp = courseCode.trim().split(/\s+/);
             let dept = temp[0].toUpperCase();
             let courseNumber = temp[1].toUpperCase();
+            setLoading(true);
             axios.get(backend_uri + '/getGroupsCourseCode', {
                 params: {
                   dept: dept,
@@ -129,14 +132,18 @@ function Input() {
                 })
                 .catch((error) => {
                     handleError(error);
-                });
+                })
+                .finally(() => {
+                    setLoading(false);
+                })
         }
     }
 
     useEffect(() => {
         // generate qr code
-        if (share_url) {
-            QRCode.toDataURL(share_url)
+        if (courseProf) {
+            console.log(courseProf.groupMe.share_url);
+            QRCode.toDataURL(courseProf.groupMe.share_url)
             .then((response) => {
                 setImageUrl(response)
             })
@@ -145,15 +152,7 @@ function Input() {
                 setImageUrl('');
             })
         }
-    }, [share_url])
-
-    const handleIDChange = (event) => {
-        setid(event.target.value);
-    };
-
-    const handleCourseCodeChange = (event) => {
-        setCourseCode(event.target.value);
-    }
+    }, [courseProf])
 
     function validateID() {
         if (id.trim().length !== 5 && id.length !== 0) {
@@ -208,25 +207,17 @@ function Input() {
         return true;
     }
 
-    function handleIDFocus() {
-        IDRef.current.select()
-    }
-
-    function handleCourseFocus() {
-        courseRef.current.select()
-    }
-
     return (
         <Container className="pt-3">
             <Form onSubmit={handleIDSubmit}>
                 <Form.Group controlId="formId">
                     <Form.Label>Unique 5 Digit Course ID</Form.Label>
-                    <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={handleIDFocus}
-                    onChange={handleIDChange} className={validateID() ? 'is_valid' : 'is-invalid'} size='lg'/>
+                    <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={() => IDRef.current.select()}
+                    onChange={(event) => setid(event.target.value)} className={validateID() ? 'is_valid' : 'is-invalid'} size='lg'/>
                 </Form.Group>
                 <Row>
                     <Col>
-                        <Button variant="primary" type="submit">
+                        <Button variant="primary" className="my-button" type="submit">
                             Submit
                         </Button>
                     </Col>
@@ -236,14 +227,14 @@ function Input() {
                 </Row>
             </Form>
             <Form onSubmit={handleCourseSubmit}>
-                <Form.Group controlId="formId">
+                <Form.Group controlId="formCourseCode">
                     <Form.Label>Class Dept and Code</Form.Label>
-                    <Form.Control type="text" name="id" placeholder="Ex. CS 439H" ref={courseRef} onFocus={handleCourseFocus}
-                    onChange={handleCourseCodeChange} className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
+                    <Form.Control type="text" name="id" placeholder="Ex. CS 439H" ref={courseRef} onFocus={() => courseRef.current.select()}
+                    onChange={(event) => setCourseCode(event.target.value)} className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
                 </Form.Group>
                 <Row>
                     <Col>
-                        <Button variant="primary" type="submit" className="mb-3">
+                        <Button variant="primary" className="my-button mb-3" type="submit">
                             Submit
                         </Button>
                     </Col>
@@ -252,34 +243,26 @@ function Input() {
             <Container className="text-center">
                 {coursesProfs.map((courseProf) => {
                     return <CourseProfCard courseProf={courseProf}
-                    onClick={(course, prof, dept, courseCode, groupMeUrl) => handleCourseProfSelection(course, prof, dept, courseCode, groupMeUrl)} 
+                    onClick={(courseProf) => handleCourseProfSelection(courseProf)} 
                     key={courseProf.course + courseProf.prof}/>;
                 })}
+                {errorMessage &&
                 <Row className="pt-3">
                     <Col>
-                        {errorMessage ? <h3>{errorMessage}</h3> : null}
+                        <h3>{errorMessage}</h3>
                     </Col>
                 </Row>
-                <Row className="pt-3">
-                    <Col>
-                        {course ? <h3>Course: {course}</h3> : null}
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        {prof ? <h3>Professor: {prof}</h3> : null}
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        {share_url ? <LinkButton link={share_url}>GroupMe Link</LinkButton> : null}
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        {imageUrl ? <img src={imageUrl} alt="QR Code should be here :(" style={{width:"250px",height:"250px"}}/> : null}
-                    </Col>
-                </Row>
+                }
+                {loading &&
+                    <Row className="pt-3">
+                        <Col>
+                            <h3>Loading...</h3>
+                        </Col>
+                    </Row>
+                }
+                {courseProf &&
+                <JoinGroupMe courseProf={courseProf} imageUrl={imageUrl}/>
+                }
             </Container>
         </Container>
     )
