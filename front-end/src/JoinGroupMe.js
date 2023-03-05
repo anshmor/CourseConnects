@@ -1,5 +1,5 @@
 import React from "react";
-import {Container, Row, Col} from 'react-bootstrap';
+import {Card, Row, Col} from 'react-bootstrap';
 import LinkButton from './LinkButton';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {QRCodeSVG} from 'qrcode.react';
@@ -8,7 +8,7 @@ import './App.css';
 
 function JoinGroupMe(props) {
     return (
-        <Container>
+        <Card className="p-3 my-card">
             <Row>
                 <Col>
                     <h3>Course: <strong>{props.courseProf.dept + " " + props.courseProf.courseNumber + " " + props.courseProf.course}</strong></h3>
@@ -30,12 +30,12 @@ function JoinGroupMe(props) {
                     value={props.courseProf.groupMe.share_url}
                     size={256}
                     level={'H'}
-                    bgColor={'#ffc784'}
+                    bgColor={'#fbe6cc'}
                     fgColor={'#000000'}
                     />
                 </Col>
             </Row>
-        </Container>
+        </Card>
       );
 }
 
