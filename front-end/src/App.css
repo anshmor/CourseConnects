@@ -18,18 +18,6 @@ body {
     border-color: #ba7719;
 }
 
-.my-button:focus {
-    background-color: #ba7719;
-    color: #000;
-    border-color: #ba7719;
-}
-
-.my-button:active {
-    background-color: #ba7719;
-    color: #000;
-    border-color: #ba7719;
-}
-
 .my-card {
     border-color: #ba7719;
     background-color: #fbe6cc;
