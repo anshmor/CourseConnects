@@ -9,14 +9,14 @@ import './App.css';
 function JoinGroupMe(props) {
     return (
         <Container>
-            <Row className="pt-3">
+            <Row>
                 <Col>
-                    <h3>Course: {props.courseProf.dept + " " + props.courseProf.courseNumber + " " + props.courseProf.course}</h3>
+                    <h3>Course: <strong>{props.courseProf.dept + " " + props.courseProf.courseNumber + " " + props.courseProf.course}</strong></h3>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <h3>Professor: {props.courseProf.prof}</h3>
+                    <h3>Professor: <strong>{props.courseProf.prof}</strong></h3>
                 </Col>
             </Row>
             <Row>

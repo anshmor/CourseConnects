@@ -18,6 +18,18 @@ body {
     border-color: #ba7719;
 }
 
+.my-button:active:hover {
+    background-color: #ba7719;
+    color: #000;
+    border-color: #ba7719;
+}
+
+.my-button:active {
+    background-color: #ba7719;
+    color: #000;
+    border-color: #ba7719;
+}
+
 .my-card {
     border-color: #ba7719;
     background-color: #fbe6cc;
@@ -26,4 +38,31 @@ body {
 .header {
     background-color: #f6d2a5;
     border-color: #f6b15e;
+}
+
+.title {
+    font-size: 3.5rem; 
+    line-height: 1.5; 
+    
+}
+
+.subtitle {
+    font-size: 1.5rem;
+}
+
+.card-text {
+    font-size: 1.5rem;
+}
+
+@media (max-width: 767px) {
+    .title {
+      font-size: 2rem; 
+      line-height: 1.2; 
+    }
+    .subtitle {
+        font-size: 1rem;
+    }
+    .card-text {
+        font-size: 1rem;
+    }
 }
