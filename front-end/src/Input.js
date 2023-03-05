@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
-import QRCode from 'qrcode';
 import CourseProfCard from './CourseProfCard';
 import JoinGroupMe from './JoinGroupMe';
 import './App.css';
@@ -10,7 +9,6 @@ import './App.css';
 function Input() {
     const [id, setid] = useState("");
     const [courseCode, setCourseCode] = useState("");
-    const [imageUrl, setImageUrl] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [courseProf, setCourseProf] = useState(null);
     const [coursesProfs, setCoursesProfs] = useState([]);
@@ -37,13 +35,14 @@ function Input() {
     'SUS', 'SWA', 'SWE', 'STM', 'SLH', 'TC', 'TD', 'TAM', 'TBA', 'TEL', 'TRO', 'TRU', 'TUR', 'TXA', 'UD', 'UDN', 'UGS', 'URB', 
     'URD', 'UTL', 'UTS', 'UKR', 'VC', 'VAS', 'VIA', 'VIB', 'VIO', 'VOI', 'VTN', 'WCV', 'WGS', 'WRT', 'YID', 'YOR'])
 
+
     const handleError = (error) => {
-        setImageUrl('');
         setCourseProf(null);
         setCoursesProfs([]);
         setErrorMessage('Error getting class information')
         console.error(error)
     };
+
 
     const handleCourseProfSelection = (courseProf) => {
         setErrorMessage('');
@@ -60,7 +59,6 @@ function Input() {
 
     const handleIDSubmit = (event) => {
         event.preventDefault();
-        setImageUrl('');
         setErrorMessage('');
         setCoursesProfs([]);
         setCourseProf(null);
@@ -71,6 +69,7 @@ function Input() {
             sendId(id.trim());
         }
     };
+
 
     function sendId(idToSend) {
         setLoading(true);
@@ -98,10 +97,10 @@ function Input() {
             });
     }
 
+
     const handleCourseSubmit = (event) => {
         event.preventDefault();
         setCourseProf(null);
-        setImageUrl('');
         setErrorMessage('');
         setCoursesProfs([]);
         if (!validateCourse() || courseCode.length === 0) {
@@ -139,20 +138,6 @@ function Input() {
         }
     }
 
-    useEffect(() => {
-        // generate qr code
-        if (courseProf) {
-            console.log(courseProf.groupMe.share_url);
-            QRCode.toDataURL(courseProf.groupMe.share_url)
-            .then((response) => {
-                setImageUrl(response)
-            })
-            .catch((error) => {
-                console.error(error)
-                setImageUrl('');
-            })
-        }
-    }, [courseProf])
 
     function validateID() {
         if (id.trim().length !== 5 && id.length !== 0) {
@@ -167,6 +152,7 @@ function Input() {
         
         return true;
     }
+
 
     function validateCourse() {
         if (courseCode.length === 0) {
@@ -206,6 +192,7 @@ function Input() {
 
         return true;
     }
+
 
     return (
         <Container className="pt-3">
@@ -261,7 +248,7 @@ function Input() {
                     </Row>
                 }
                 {courseProf &&
-                <JoinGroupMe courseProf={courseProf} imageUrl={imageUrl}/>
+                <JoinGroupMe courseProf={courseProf}/>
                 }
             </Container>
         </Container>

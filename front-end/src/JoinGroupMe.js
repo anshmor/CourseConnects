@@ -2,6 +2,7 @@ import React from "react";
 import {Container, Row, Col} from 'react-bootstrap';
 import LinkButton from './LinkButton';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import {QRCodeSVG} from 'qrcode.react';
 import './App.css';
 
 
@@ -10,22 +11,28 @@ function JoinGroupMe(props) {
         <Container>
             <Row className="pt-3">
                 <Col>
-                    {props.courseProf ? <h3>Course: {props.courseProf.dept + " " + props.courseProf.courseNumber + " " + props.courseProf.course}</h3> : null}
+                    <h3>Course: {props.courseProf.dept + " " + props.courseProf.courseNumber + " " + props.courseProf.course}</h3>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    {props.courseProf ? <h3>Professor: {props.courseProf.prof}</h3> : null}
+                    <h3>Professor: {props.courseProf.prof}</h3>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    {props.courseProf ? <LinkButton link={props.courseProf.groupMe.share_url}>GroupMe Link</LinkButton> : null}
+                    <LinkButton link={props.courseProf.groupMe.share_url}>GroupMe Link</LinkButton>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    {props.imageUrl ? <img src={props.imageUrl} alt="QR Code should be here :(" style={{width:"250px",height:"250px"}}/> : null}
+                    <QRCodeSVG className="mt-3"
+                    value={props.courseProf.groupMe.share_url}
+                    size={256}
+                    level={'H'}
+                    bgColor={'#ffc784'}
+                    fgColor={'#000000'}
+                    />
                 </Col>
             </Row>
         </Container>
