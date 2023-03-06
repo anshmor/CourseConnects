@@ -11,12 +11,12 @@ function JoinGroupMe(props) {
         <Card className="p-3 my-card">
             <Row>
                 <Col>
-                    <h3>Course: <strong>{props.courseProf.dept + " " + props.courseProf.courseNumber + " " + props.courseProf.course}</strong></h3>
+                    <h3 className="card-text">Course: <strong>{props.courseProf.dept + " " + props.courseProf.courseNumber + " " + props.courseProf.course}</strong></h3>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    <h3>Professor: <strong>{props.courseProf.prof}</strong></h3>
+                    <h3 className="card-text">Professor: <strong>{props.courseProf.prof}</strong></h3>
                 </Col>
             </Row>
             <Row>
