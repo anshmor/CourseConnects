@@ -1,11 +1,8 @@
 
-
-
-
 .my-button {
     background-color: #e08f1f;
     color: #000;
-    border-color: #e3a041;
+    border-color: #ba7719;
   }
   
 .my-button:hover {
@@ -33,7 +30,7 @@
 
 .header {
     background-color: #f6d2a5;
-    border-color: #f6b15e;
+    border-color: #ba7719;
 }
 
 .title {
