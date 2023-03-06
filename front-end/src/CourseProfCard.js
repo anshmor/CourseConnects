@@ -10,7 +10,6 @@ function CourseProfCard(props) {
 
     return (
         <Card className="mb-3 my-card p-4">
-
                 <Card.Text className="card-text">
                     Course: <strong>{props.courseProf.course}</strong>
                 </Card.Text>

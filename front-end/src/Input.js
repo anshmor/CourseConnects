@@ -196,11 +196,11 @@ function Input() {
 
     return (
         <Container className="pt-3">
-            <Form onSubmit={handleIDSubmit}>
-                <Form.Group controlId="formId">
-                    <Form.Label>Unique 5 Digit Course ID</Form.Label>
-                    <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={() => IDRef.current.select()}
-                    onChange={(event) => setid(event.target.value)} className={validateID() ? 'is_valid' : 'is-invalid'} size='lg'/>
+            <Form onSubmit={handleCourseSubmit}>
+                <Form.Group controlId="formCourseCode">
+                    <Form.Label>Class Dept and Code</Form.Label>
+                    <Form.Control type="text" name="id" placeholder="Ex. CS 439H" ref={courseRef} onFocus={() => courseRef.current.select()}
+                    onChange={(event) => setCourseCode(event.target.value)} className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
                 </Form.Group>
                 <Row>
                     <Col>
@@ -208,16 +208,19 @@ function Input() {
                             Submit
                         </Button>
                     </Col>
-                    <Col className="pt-4">
-                        <h3>OR</h3>
-                    </Col>
                 </Row>
             </Form>
-            <Form onSubmit={handleCourseSubmit}>
-                <Form.Group controlId="formCourseCode">
-                    <Form.Label>Class Dept and Code</Form.Label>
-                    <Form.Control type="text" name="id" placeholder="Ex. CS 439H" ref={courseRef} onFocus={() => courseRef.current.select()}
-                    onChange={(event) => setCourseCode(event.target.value)} className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
+            <Row>
+                <Col className="text-center">
+                        <h3>OR</h3>
+                </Col>
+            </Row>
+
+            <Form onSubmit={handleIDSubmit}>
+                <Form.Group controlId="formId">
+                    <Form.Label>Unique 5 Digit Course ID</Form.Label>
+                    <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={() => IDRef.current.select()}
+                    onChange={(event) => setid(event.target.value)} className={validateID() ? 'is_valid' : 'is-invalid'} size='lg'/>
                 </Form.Group>
                 <Row>
                     <Col>
@@ -227,6 +230,7 @@ function Input() {
                     </Col>
                 </Row>
             </Form>
+
             <Container className="text-center">
                 {coursesProfs.map((courseProf) => {
                     return <CourseProfCard courseProf={courseProf}
