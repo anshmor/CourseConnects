@@ -212,7 +212,7 @@ function Input() {
             </Form>
             <Row>
                 <Col className="text-center">
-                        <h3 className="card-text">OR</h3>
+                        <h3 className="card-text mb-2">OR</h3>
                 </Col>
             </Row>
 
