@@ -9,7 +9,7 @@ function Header() {
         <Card className="header header-card">
             <Card.Title  className="text-center title">CourseConnects</Card.Title>
             <Card.Text className="text-center mb-1 subtitle">
-            Find the GroupMe for each of your UT classes!
+                Join the GroupMe for each of your UT classes!
             </Card.Text>
         </Card>
       );
