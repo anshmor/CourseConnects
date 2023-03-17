@@ -183,7 +183,7 @@ function Input() {
     function validateID() {
         var input_error;
         if (id.trim().length !== 5 && id.length !== 0) {
-            updateInputError("*Course ID should be 5 characters long", "*ID should be 5 characters long");
+            updateInputError("*Course ID should be 5 characters long", "*ID should be 5 characters");
             return false;
         }
 
@@ -223,7 +223,7 @@ function Input() {
 
         // make sure there is just dept and course code
         if (temp.length !== 2) {
-            updateInputError("*Enter course department and code", "*Enter department and code");
+            updateInputError("*Enter course department and code", "*Enter dept and code");
             return false;
         }
 
@@ -232,7 +232,7 @@ function Input() {
 
         // parses dept correctly to search if it's a valid dept
         if (!depts.has(curDept)) {
-            updateInputError("*That deparment doesn't exist :(", "*That deparment doesn't exist");
+            updateInputError("*That deparment doesn't exist :(", "*That dept doesn't exist");
             return false
         }
 
@@ -266,7 +266,7 @@ function Input() {
                 <Form onSubmit={handleCourseSubmit}>
                     <Form.Group controlId="formCourseCode">
                         <div className="d-flex justify-content-start">
-                            <Form.Label className="form-label">Class Dept and Code</Form.Label>
+                            <Form.Label className="form-label">{isSmallScreen ? "Class Dept + Code" : "Class Department and Code"}</Form.Label>
                             <Form.Label style={{color: "#dc3545"}} className="form-label mx-4">{inputError}</Form.Label>
                         </div>
                         <Form.Control type="text" name="id" placeholder="Ex. CS 439H" ref={courseRef} onFocus={() => courseRef.current.select()}
