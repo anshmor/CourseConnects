@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
@@ -15,7 +15,7 @@ function Input() {
     const [coursesProfs, setCoursesProfs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [inputType, setInputType] = useState("dept");
-    //var input_error = "";
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
 
     const IDRef = useRef(null);
     const courseRef = useRef(null);
@@ -39,6 +39,22 @@ function Input() {
     'URD', 'UTL', 'UTS', 'UKR', 'VC', 'VAS', 'VIA', 'VIB', 'VIO', 'VOI', 'VTN', 'WCV', 'WGS', 'WRT', 'YID', 'YOR'])
 
 
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 768px)');
+        setIsSmallScreen(mediaQuery.matches);
+    
+        const handleMediaQueryChange = (event) => {
+          setIsSmallScreen(event.matches);
+        };
+    
+        mediaQuery.addListener(handleMediaQueryChange);
+    
+        return () => {
+          mediaQuery.removeListener(handleMediaQueryChange);
+        };
+      }, []);
+
+
     const handleError = (error) => {
         setCourseProf(null);
         setCoursesProfs([]);
@@ -57,7 +73,7 @@ function Input() {
         else {
             setCourseProf(courseProf);
         }
-    }
+    };
 
 
     const handleIDSubmit = (event) => {
@@ -151,22 +167,29 @@ function Input() {
     }
 
 
+    function updateInputError(input_error, small_input_error) {
+        if (isSmallScreen && small_input_error !== "") {
+            if (small_input_error !== inputError) {
+                setInputError(small_input_error);
+            }
+        }
+
+        else if (inputError !== input_error) {
+            setInputError(input_error);
+        }
+    }
+
+
     function validateID() {
         var input_error;
         if (id.trim().length !== 5 && id.length !== 0) {
-            input_error = "*Course ID should be 5 characters long";
-            if (input_error !== inputError) {
-                setInputError(input_error);
-            }
+            updateInputError("*Course ID should be 5 characters long", "*ID should be 5 characters long");
             return false;
         }
 
         for (let i = 0; i < id.trim().length; i++) {
             if (id[i] < '0' || id[i] > '9') {
-                input_error = "*Course ID should be numbers only";
-                if (input_error !== inputError) {
-                    setInputError(input_error);
-                }
+                updateInputError("*Course ID should be numbers only", "*ID should be numbers only");
                 return false;
             }
         }
@@ -180,12 +203,8 @@ function Input() {
 
 
     function validateCourse() {
-        var input_error;
         if (courseCode.length === 0) {
-            input_error = "";
-            if (inputError !== input_error) {
-                setInputError(input_error);
-            }
+            updateInputError("", "");
             return true;
         }
 
@@ -204,10 +223,7 @@ function Input() {
 
         // make sure there is just dept and course code
         if (temp.length !== 2) {
-            input_error = "*Enter course department and code";
-            if (inputError !== input_error) {
-                setInputError(input_error);
-            }
+            updateInputError("*Enter course department and code", "*Enter department and code");
             return false;
         }
 
@@ -216,45 +232,30 @@ function Input() {
 
         // parses dept correctly to search if it's a valid dept
         if (!depts.has(curDept)) {
-            input_error = "*That deparment doesn't exist :(";
-            if (inputError !== input_error) {
-                setInputError(input_error);
-            }
+            updateInputError("*That deparment doesn't exist :(", "*That deparment doesn't exist");
             return false
         }
 
         // course code should be 3-4 characters, 4th char has to be letter
         if (curCourseCode.length !== 3 && curCourseCode.length !== 4) {
-            input_error = "*Course code should be 3-4 characters";
-            if (inputError !== input_error) {
-                setInputError(input_error);
-            }
+            updateInputError("*Course code should be 3-4 characters", "*Code should be 3-4 characters");
             return false;
         }
 
         for (let i = 0; i < curCourseCode.length; i++) {
             if (i === 3) {
                 if (curCourseCode[i] < 'A' || curCourseCode[i] > 'Z') {
-                    input_error = "*Course code should have only 3 numbers";
-                    if (inputError !== input_error) {
-                        setInputError(input_error);
-                    }
+                    updateInputError("*Course code should have only 3 numbers", "*Code should have 3 numbers");
                     return false;
                 }
             }
             else if (curCourseCode[i] < '0' || curCourseCode[i] > '9') {
-                input_error = "*Course code should start with 3 numbers";
-                if (inputError !== input_error) {
-                    setInputError(input_error);
-                }
+                updateInputError("*Course code should start with 3 numbers", "*Code should start with 3 numbers");
                 return false;
             }
         }
         
-        input_error = "";
-        if (inputError !== input_error) {
-            setInputError(input_error);
-        }
+        updateInputError("", "");
         return true;
     }
 
@@ -277,7 +278,7 @@ function Input() {
                                 Submit
                             </Button>
                             <Button variant="primary" className="toggle-button mx-3 mb-3" onClick={() => {setInputError(""); setInputType("id");}}>
-                                Search by 5 digit course code
+                                Search by 5 digit ID
                             </Button>
                     </div>
                     
@@ -288,7 +289,7 @@ function Input() {
                 <Form onSubmit={handleIDSubmit}>
                     <Form.Group controlId="formId">
                         <div className="d-flex justify-content-start">
-                            <Form.Label className="form-label">Unique 5 Digit Course ID</Form.Label>
+                            <Form.Label className="form-label">{isSmallScreen ? "5 Digit Course ID" : "Unique 5 Digit Course ID"}</Form.Label>
                             <Form.Label style={{color: "#dc3545"}} className="form-label mx-4">{inputError}</Form.Label>
                         </div>
                         <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={() => IDRef.current.select()}
@@ -300,7 +301,7 @@ function Input() {
                             Submit
                         </Button>
                         <Button variant="primary" className="toggle-button mx-3 mb-3" onClick={() => {setInputError(""); setInputType("dept");}}>
-                            Search by dept and course number
+                            {isSmallScreen ? "Search by dept + number" : "Search by course dept and number"}
                         </Button>
                     </div>
                 </Form>
