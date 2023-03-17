@@ -265,19 +265,20 @@ function Input() {
             {inputType === "dept" && 
                 <Form onSubmit={handleCourseSubmit}>
                     <Form.Group controlId="formCourseCode">
-                        <div className="d-flex justify-content-start">
+                        <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
                             <Form.Label className="form-label">{isSmallScreen ? "Class Dept + Code" : "Class Department and Code"}</Form.Label>
-                            <Form.Label style={{color: "#dc3545"}} className="form-label mx-4">{inputError}</Form.Label>
+                            <Form.Label style={{color: "#dc3545"}} className={isSmallScreen ? "form-label" : "form-label mx-4"}>{inputError}</Form.Label>
                         </div>
                         <Form.Control type="text" name="id" placeholder="Ex. CS 439H" ref={courseRef} onFocus={() => courseRef.current.select()}
                         value={courseCode} onChange={(event) => setCourseCode(event.target.value)} 
                         className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
                     </Form.Group>
-                    <div className="d-flex justify-content-start">
+                    <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
                             <Button variant="primary" className="my-button mb-3" type="submit">
                                 Submit
                             </Button>
-                            <Button variant="primary" className="toggle-button mx-3 mb-3" onClick={() => {setInputError(""); setInputType("id");}}>
+                            <Button variant="primary" className={isSmallScreen ? "toggle-button mb-3" : "toggle-button mx-3 mb-3"} 
+                            onClick={() => {setInputError(""); setInputType("id");}}>
                                 Search by 5 digit ID
                             </Button>
                     </div>
@@ -288,19 +289,20 @@ function Input() {
             {inputType === "id" && 
                 <Form onSubmit={handleIDSubmit}>
                     <Form.Group controlId="formId">
-                        <div className="d-flex justify-content-start">
+                        <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
                             <Form.Label className="form-label">{isSmallScreen ? "5 Digit Course ID" : "Unique 5 Digit Course ID"}</Form.Label>
-                            <Form.Label style={{color: "#dc3545"}} className="form-label mx-4">{inputError}</Form.Label>
+                            <Form.Label style={{color: "#dc3545"}} className={isSmallScreen ? "form-label" : "form-label mx-4"}>{inputError}</Form.Label>
                         </div>
                         <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={() => IDRef.current.select()}
                         value={id} onChange={(event) => setid(event.target.value)} className={validateID() ? 'is_valid' : 'is-invalid'} size='lg'/>
                     </Form.Group>
 
-                    <div className="d-flex justify-content-start">
+                    <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
                         <Button variant="primary" className="my-button mb-3" type="submit">
                             Submit
                         </Button>
-                        <Button variant="primary" className="toggle-button mx-3 mb-3" onClick={() => {setInputError(""); setInputType("dept");}}>
+                        <Button variant="primary" className={isSmallScreen ? "toggle-button mb-3" : "toggle-button mx-3 mb-3"} 
+                        onClick={() => {setInputError(""); setInputType("dept");}}>
                             {isSmallScreen ? "Search by dept + number" : "Search by course dept and number"}
                         </Button>
                     </div>
