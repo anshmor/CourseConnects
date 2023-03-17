@@ -23,6 +23,30 @@
     border-color: #ba7719;
 }
 
+.toggle-button {
+    background-color: #fbe6cc;
+    color: #000;
+    border-color: #ba7719;
+}
+
+.toggle-button:hover {
+    background-color: #fbdab1;
+    color: #000;
+    border-color: #ba7719;
+}
+
+.toggle-button:active:hover {
+    background-color: #fbdab1;
+    color: #000;
+    border-color: #ba7719;
+}
+
+.toggle-button:active {
+    background-color: #fbdab1;
+    color: #000;
+    border-color: #ba7719;
+}
+
 .my-card {
     border-color: #ba7719;
     background-color: #fbe6cc;
@@ -43,12 +67,24 @@
     font-size: 1.5rem;
 }
 
+.footer {
+    font-size: 1.25rem;
+}
+
 .card-text {
     font-size: 1.5rem;
 }
 
 .header-card {
     padding: 0.5rem;
+}
+
+.input-error {
+    color: "red";
+}
+
+.form-label {
+    font-size: 1rem;
 }
 
 @media (max-width: 767px) {
@@ -62,6 +98,12 @@
     .card-text {
         font-size: 1rem;
     }
+    .footer {
+        font-size: 0.75rem;
+    }
+    .form-label {
+        font-size: 0.8rem;
+    }
 }
 
 @media (max-width: 300px) {
@@ -74,5 +116,11 @@
     }
     .card-text {
         font-size: 0.8rem;
+    }
+    .footer {
+        font-size: 0.65rem;
+    }
+    .form-label {
+        font-size: 0.7rem;
     }
 }

@@ -10,9 +10,12 @@ function Input() {
     const [id, setid] = useState("");
     const [courseCode, setCourseCode] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [inputError, setInputError] = useState("");
     const [courseProf, setCourseProf] = useState(null);
     const [coursesProfs, setCoursesProfs] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [inputType, setInputType] = useState("dept");
+    //var input_error = "";
 
     const IDRef = useRef(null);
     const courseRef = useRef(null);
@@ -108,6 +111,15 @@ function Input() {
         }
         else {
             let temp = courseCode.trim().split(/\s+/);
+            if (temp.length === 1) {
+                const regex = /\d+/; 
+                const match = temp[0].match(regex); 
+                if (match) {
+                    var courseCodeStarts = temp[0].indexOf(match[0])
+                    temp.push(temp[0].substring(courseCodeStarts));
+                    temp[0] = temp[0].substring(0, courseCodeStarts)
+                }
+            }
             let dept = temp[0].toUpperCase();
             let courseNumber = temp[1].toUpperCase();
             setLoading(true);
@@ -140,29 +152,62 @@ function Input() {
 
 
     function validateID() {
+        var input_error;
         if (id.trim().length !== 5 && id.length !== 0) {
+            input_error = "*Course ID should be 5 characters long";
+            if (input_error !== inputError) {
+                setInputError(input_error);
+            }
             return false;
         }
 
         for (let i = 0; i < id.trim().length; i++) {
             if (id[i] < '0' || id[i] > '9') {
+                input_error = "*Course ID should be numbers only";
+                if (input_error !== inputError) {
+                    setInputError(input_error);
+                }
                 return false;
             }
         }
         
+        input_error = "";
+        if (input_error !== inputError) {
+            setInputError(input_error);
+        }
         return true;
     }
 
 
     function validateCourse() {
+        var input_error;
         if (courseCode.length === 0) {
+            input_error = "";
+            if (inputError !== input_error) {
+                setInputError(input_error);
+            }
             return true;
         }
 
         var temp = courseCode.trim().split(/\s+/);
 
+        // if user without space between dept and code
+        if (temp.length === 1) {
+            const regex = /\d+/; 
+            const match = temp[0].match(regex); 
+            if (match) {
+                var courseCodeStarts = temp[0].indexOf(match[0])
+                temp.push(temp[0].substring(courseCodeStarts));
+                temp[0] = temp[0].substring(0, courseCodeStarts)
+            }
+        }
+
         // make sure there is just dept and course code
         if (temp.length !== 2) {
+            input_error = "*Enter course department and code";
+            if (inputError !== input_error) {
+                setInputError(input_error);
+            }
             return false;
         }
 
@@ -171,65 +216,95 @@ function Input() {
 
         // parses dept correctly to search if it's a valid dept
         if (!depts.has(curDept)) {
+            input_error = "*That deparment doesn't exist :(";
+            if (inputError !== input_error) {
+                setInputError(input_error);
+            }
             return false
         }
 
         // course code should be 3-4 characters, 4th char has to be letter
         if (curCourseCode.length !== 3 && curCourseCode.length !== 4) {
+            input_error = "*Course code should be 3-4 characters";
+            if (inputError !== input_error) {
+                setInputError(input_error);
+            }
             return false;
         }
 
         for (let i = 0; i < curCourseCode.length; i++) {
             if (i === 3) {
                 if (curCourseCode[i] < 'A' || curCourseCode[i] > 'Z') {
+                    input_error = "*Course code should have only 3 numbers";
+                    if (inputError !== input_error) {
+                        setInputError(input_error);
+                    }
                     return false;
                 }
             }
             else if (curCourseCode[i] < '0' || curCourseCode[i] > '9') {
+                input_error = "*Course code should start with 3 numbers";
+                if (inputError !== input_error) {
+                    setInputError(input_error);
+                }
                 return false;
             }
         }
-
+        
+        input_error = "";
+        if (inputError !== input_error) {
+            setInputError(input_error);
+        }
         return true;
     }
 
 
     return (
         <Container className="pt-3">
-            <Form onSubmit={handleCourseSubmit}>
-                <Form.Group controlId="formCourseCode">
-                    <Form.Label>Class Dept and Code</Form.Label>
-                    <Form.Control type="text" name="id" placeholder="Ex. CS 439H" ref={courseRef} onFocus={() => courseRef.current.select()}
-                    onChange={(event) => setCourseCode(event.target.value)} className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
-                </Form.Group>
-                <Row>
-                    <Col>
-                        <Button variant="primary" className="my-button" type="submit">
-                            Submit
-                        </Button>
-                    </Col>
-                </Row>
-            </Form>
-            <Row>
-                <Col className="text-center">
-                        <h3 className="card-text mb-2"><strong>OR</strong></h3>
-                </Col>
-            </Row>
+            {inputType === "dept" && 
+                <Form onSubmit={handleCourseSubmit}>
+                    <Form.Group controlId="formCourseCode">
+                        <div className="d-flex justify-content-start">
+                            <Form.Label className="form-label">Class Dept and Code</Form.Label>
+                            <Form.Label style={{color: "#dc3545"}} className="form-label mx-4">{inputError}</Form.Label>
+                        </div>
+                        <Form.Control type="text" name="id" placeholder="Ex. CS 439H" ref={courseRef} onFocus={() => courseRef.current.select()}
+                        value={courseCode} onChange={(event) => setCourseCode(event.target.value)} 
+                        className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
+                    </Form.Group>
+                    <div className="d-flex justify-content-start">
+                            <Button variant="primary" className="my-button mb-3" type="submit">
+                                Submit
+                            </Button>
+                            <Button variant="primary" className="toggle-button mx-3 mb-3" onClick={() => {setInputError(""); setInputType("id");}}>
+                                Search by 5 digit course code
+                            </Button>
+                    </div>
+                    
+                </Form>
+            }
 
-            <Form onSubmit={handleIDSubmit}>
-                <Form.Group controlId="formId">
-                    <Form.Label>Unique 5 Digit Course ID</Form.Label>
-                    <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={() => IDRef.current.select()}
-                    onChange={(event) => setid(event.target.value)} className={validateID() ? 'is_valid' : 'is-invalid'} size='lg'/>
-                </Form.Group>
-                <Row>
-                    <Col>
+            {inputType === "id" && 
+                <Form onSubmit={handleIDSubmit}>
+                    <Form.Group controlId="formId">
+                        <div className="d-flex justify-content-start">
+                            <Form.Label className="form-label">Unique 5 Digit Course ID</Form.Label>
+                            <Form.Label style={{color: "#dc3545"}} className="form-label mx-4">{inputError}</Form.Label>
+                        </div>
+                        <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={() => IDRef.current.select()}
+                        value={id} onChange={(event) => setid(event.target.value)} className={validateID() ? 'is_valid' : 'is-invalid'} size='lg'/>
+                    </Form.Group>
+
+                    <div className="d-flex justify-content-start">
                         <Button variant="primary" className="my-button mb-3" type="submit">
                             Submit
                         </Button>
-                    </Col>
-                </Row>
-            </Form>
+                        <Button variant="primary" className="toggle-button mx-3 mb-3" onClick={() => {setInputError(""); setInputType("dept");}}>
+                            Search by dept and course number
+                        </Button>
+                    </div>
+                </Form>
+            }   
 
             <Container className="text-center">
                 {coursesProfs.map((courseProf) => {
@@ -237,6 +312,7 @@ function Input() {
                     onClick={(courseProf) => handleCourseProfSelection(courseProf)} 
                     key={courseProf.course + courseProf.prof}/>;
                 })}
+
                 {errorMessage &&
                 <Row className="pt-3">
                     <Col>
@@ -244,6 +320,7 @@ function Input() {
                     </Col>
                 </Row>
                 }
+
                 {loading &&
                     <Row className="pt-3">
                         <Col>
@@ -251,6 +328,7 @@ function Input() {
                         </Col>
                     </Row>
                 }
+
                 {courseProf &&
                 <JoinGroupMe courseProf={courseProf}/>
                 }
