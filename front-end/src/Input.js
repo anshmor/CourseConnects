@@ -274,10 +274,10 @@ function Input() {
                         className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
                     </Form.Group>
                     <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
-                            <Button variant="primary" className="my-button mb-3" type="submit">
+                            <Button variant="primary" className="my-button mb-3 mt-2" type="submit">
                                 Submit
                             </Button>
-                            <Button variant="primary" className={isSmallScreen ? "toggle-button mb-3" : "toggle-button mx-3 mb-3"} 
+                            <Button variant="primary" className={isSmallScreen ? "toggle-button mb-3 mt-2" : "toggle-button mx-3 mb-3 mt-2"} 
                             onClick={() => {setInputError(""); setInputType("id");}}>
                                 Search by 5 digit ID
                             </Button>
@@ -298,10 +298,10 @@ function Input() {
                     </Form.Group>
 
                     <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
-                        <Button variant="primary" className="my-button mb-3" type="submit">
+                        <Button variant="primary" className="my-button mb-3 mt-2" type="submit">
                             Submit
                         </Button>
-                        <Button variant="primary" className={isSmallScreen ? "toggle-button mb-3" : "toggle-button mx-3 mb-3"} 
+                        <Button variant="primary" className={isSmallScreen ? "toggle-button mb-3 mt-2" : "toggle-button mx-3 mb-3 mt-2"} 
                         onClick={() => {setInputError(""); setInputType("dept");}}>
                             {isSmallScreen ? "Search by dept + number" : "Search by course dept and number"}
                         </Button>
