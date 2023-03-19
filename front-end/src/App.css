@@ -87,6 +87,17 @@
     font-size: 1rem;
 }
 
+.my-form {
+    width: 60%;
+    margin: 0 auto;
+}
+
+@media (max-width: 1199px) {
+    .my-form {
+        width: 90%;
+    }
+}
+
 @media (max-width: 767px) {
     .title {
       font-size: 2rem; 
@@ -103,6 +114,9 @@
     }
     .form-label {
         font-size: 0.8rem;
+    }
+    .my-form {
+        width: 100%;
     }
 }
 
@@ -122,5 +136,8 @@
     }
     .form-label {
         font-size: 0.7rem;
+    }
+    .my-form {
+        width: 100%;
     }
 }

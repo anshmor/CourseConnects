@@ -16,6 +16,8 @@ function Input() {
     const [loading, setLoading] = useState(false);
     const [inputType, setInputType] = useState("dept");
     const [isSmallScreen, setIsSmallScreen] = useState(false);
+    var curCourseCode = "";
+    var curDept = "";
 
     const IDRef = useRef(null);
     const courseRef = useRef(null);
@@ -126,23 +128,11 @@ function Input() {
             setErrorMessage('Invalid Input');
         }
         else {
-            let temp = courseCode.trim().split(/\s+/);
-            if (temp.length === 1) {
-                const regex = /\d+/; 
-                const match = temp[0].match(regex); 
-                if (match) {
-                    var courseCodeStarts = temp[0].indexOf(match[0])
-                    temp.push(temp[0].substring(courseCodeStarts));
-                    temp[0] = temp[0].substring(0, courseCodeStarts)
-                }
-            }
-            let dept = temp[0].toUpperCase();
-            let courseNumber = temp[1].toUpperCase();
             setLoading(true);
             axios.get(backend_uri + '/getGroupsCourseCode', {
                 params: {
-                  dept: dept,
-                  courseCode: courseNumber
+                  dept: curDept,
+                  courseCode: curCourseCode
                 }
                 })
                 .then(response => {
@@ -182,7 +172,7 @@ function Input() {
 
     function validateID() {
         var input_error;
-        if (id.trim().length !== 5 && id.length !== 0) {
+        if (id.trim().length > 5) {
             updateInputError("*Course ID should be 5 characters long", "*ID should be 5 characters");
             return false;
         }
@@ -192,6 +182,11 @@ function Input() {
                 updateInputError("*Course ID should be numbers only", "*ID should be numbers only");
                 return false;
             }
+        }
+
+        if (id.trim().length !== 5 && id.length !== 0) {
+            updateInputError("*Course ID should be 5 characters long", "*ID should be 5 characters");
+            return false;
         }
         
         input_error = "";
@@ -208,27 +203,31 @@ function Input() {
             return true;
         }
 
-        var temp = courseCode.trim().split(/\s+/);
-
-        // if user without space between dept and code
-        if (temp.length === 1) {
-            const regex = /\d+/; 
-            const match = temp[0].match(regex); 
-            if (match) {
-                var courseCodeStarts = temp[0].indexOf(match[0])
-                temp.push(temp[0].substring(courseCodeStarts));
-                temp[0] = temp[0].substring(0, courseCodeStarts)
-            }
+        
+        courseCode.replaceAll(" ", "");
+       
+        const match = courseCode.match(/\d+/); 
+        
+        if (match) {
+            var courseCodeStarts = courseCode.indexOf(match[0])
+            curCourseCode = courseCode.substring(courseCodeStarts).toUpperCase();
+            curDept = courseCode.substring(0, courseCodeStarts).toUpperCase();
         }
 
-        // make sure there is just dept and course code
-        if (temp.length !== 2) {
+        else {
             updateInputError("*Enter course department and code", "*Enter dept and code");
             return false;
         }
+        
 
-        var curDept = temp[0].toUpperCase();
-        var curCourseCode = temp[1].toUpperCase();
+        // make sure there is just dept and course code
+        // if (temp.length !== 2) {
+        //     updateInputError("*Enter course department and code", "*Enter dept and code");
+        //     return false;
+        // }
+
+        // var curDept = temp[0].toUpperCase();
+        // var curCourseCode = temp[1].toUpperCase();
 
         // parses dept correctly to search if it's a valid dept
         if (!depts.has(curDept)) {
@@ -263,9 +262,9 @@ function Input() {
     return (
         <Container className="pt-3">
             {inputType === "dept" && 
-                <Form onSubmit={handleCourseSubmit}>
+                <Form onSubmit={handleCourseSubmit} className="my-form">
                     <Form.Group controlId="formCourseCode">
-                        <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
+                        <div className="d-flex justify-content-between">
                             <Form.Label className="form-label">{isSmallScreen ? "Class Dept + Code" : "Class Department and Code"}</Form.Label>
                             <Form.Label style={{color: "#dc3545"}} className={isSmallScreen ? "form-label" : "form-label mx-4"}>{inputError}</Form.Label>
                         </div>
@@ -273,11 +272,11 @@ function Input() {
                         value={courseCode} onChange={(event) => setCourseCode(event.target.value)} 
                         className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
                     </Form.Group>
-                    <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
+                    <div className="d-flex justify-content-between">
                             <Button variant="primary" className="my-button mb-3 mt-2" type="submit">
                                 Submit
                             </Button>
-                            <Button variant="primary" className={isSmallScreen ? "toggle-button mb-3 mt-2" : "toggle-button mx-3 mb-3 mt-2"} 
+                            <Button variant="primary" className="toggle-button mb-3 mt-2" 
                             onClick={() => {setInputError(""); setInputType("id");}}>
                                 Search by 5 digit ID
                             </Button>
@@ -287,21 +286,21 @@ function Input() {
             }
 
             {inputType === "id" && 
-                <Form onSubmit={handleIDSubmit}>
+                <Form onSubmit={handleIDSubmit} className="my-form">
                     <Form.Group controlId="formId">
-                        <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
+                        <div className="d-flex justify-content-between">
                             <Form.Label className="form-label">{isSmallScreen ? "5 Digit Course ID" : "Unique 5 Digit Course ID"}</Form.Label>
-                            <Form.Label style={{color: "#dc3545"}} className={isSmallScreen ? "form-label" : "form-label mx-4"}>{inputError}</Form.Label>
+                            <Form.Label style={{color: "#dc3545"}} className="form-label">{inputError}</Form.Label>
                         </div>
                         <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={() => IDRef.current.select()}
                         value={id} onChange={(event) => setid(event.target.value)} className={validateID() ? 'is_valid' : 'is-invalid'} size='lg'/>
                     </Form.Group>
 
-                    <div className={isSmallScreen ? "d-flex justify-content-between" : "d-flex justify-content-start"}>
+                    <div className="d-flex justify-content-between">
                         <Button variant="primary" className="my-button mb-3 mt-2" type="submit">
                             Submit
                         </Button>
-                        <Button variant="primary" className={isSmallScreen ? "toggle-button mb-3 mt-2" : "toggle-button mx-3 mb-3 mt-2"} 
+                        <Button variant="primary" className="toggle-button mb-3 mt-2" 
                         onClick={() => {setInputError(""); setInputType("dept");}}>
                             {isSmallScreen ? "Search by dept + number" : "Search by course dept and number"}
                         </Button>
