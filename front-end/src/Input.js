@@ -84,7 +84,7 @@ function Input() {
         setCoursesProfs([]);
         setCourseProf(null);
         if (!validateID() || id.length === 0) {
-            setErrorMessage('Invalid Input');
+            setErrorMessage('Fix your input (⩺_⩹)');
          }
         else {
             sendId(id.trim());
@@ -125,7 +125,7 @@ function Input() {
         setErrorMessage('');
         setCoursesProfs([]);
         if (!validateCourse() || courseCode.length === 0) {
-            setErrorMessage('Invalid Input');
+            setErrorMessage('Fix your input (⩺_⩹)');
         }
         else {
             setLoading(true);
@@ -137,7 +137,7 @@ function Input() {
                 })
                 .then(response => {
                     if (response.data === 'No Matches') {
-                        setErrorMessage('No associated courses with what you entered');
+                        setErrorMessage('No associated courses with what you entered :(');
                     }
                     else {
                         const tempCoursesProfs = [];
@@ -204,14 +204,14 @@ function Input() {
         }
 
         
-        courseCode.replaceAll(" ", "");
+        let temp = courseCode.replaceAll(" ", "");
        
-        const match = courseCode.match(/\d+/); 
+        const match = temp.match(/\d+/); 
         
         if (match) {
-            var courseCodeStarts = courseCode.indexOf(match[0])
-            curCourseCode = courseCode.substring(courseCodeStarts).toUpperCase();
-            curDept = courseCode.substring(0, courseCodeStarts).toUpperCase();
+            var courseCodeStarts = temp.indexOf(match[0])
+            curCourseCode = temp.substring(courseCodeStarts).toUpperCase();
+            curDept = temp.substring(0, courseCodeStarts).toUpperCase();
         }
 
         else {
@@ -219,16 +219,10 @@ function Input() {
             return false;
         }
         
-
-        // make sure there is just dept and course code
-        // if (temp.length !== 2) {
-        //     updateInputError("*Enter course department and code", "*Enter dept and code");
-        //     return false;
-        // }
-
-        // var curDept = temp[0].toUpperCase();
-        // var curCourseCode = temp[1].toUpperCase();
-
+        if (curDept.length > 3) {
+            updateInputError("*Department should be 1-3 letters", "*Dept should be 1-3 letters");
+            return false
+        }
         // parses dept correctly to search if it's a valid dept
         if (!depts.has(curDept)) {
             updateInputError("*That deparment doesn't exist :(", "*That dept doesn't exist");
@@ -268,7 +262,7 @@ function Input() {
                             <Form.Label className="form-label">{isSmallScreen ? "Class Dept + Code" : "Class Department and Code"}</Form.Label>
                             <Form.Label style={{color: "#dc3545"}} className={isSmallScreen ? "form-label" : "form-label mx-4"}>{inputError}</Form.Label>
                         </div>
-                        <Form.Control type="text" name="id" placeholder="Ex. CS 439H" ref={courseRef} onFocus={() => courseRef.current.select()}
+                        <Form.Control type="text" name="id" placeholder="Ex. CS 429H" ref={courseRef} onFocus={() => courseRef.current.select()}
                         value={courseCode} onChange={(event) => setCourseCode(event.target.value)} 
                         className={validateCourse() ? 'is_valid' : 'is-invalid'} size='lg'/>
                     </Form.Group>
