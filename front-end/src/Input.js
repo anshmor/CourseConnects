@@ -128,11 +128,12 @@ function Input(props) {
                         for (let i = 0; i < response.data.length; i++) {
                             tempCoursesProfs.push(response.data[i]);
                         }
-                        setCoursesProfs(tempCoursesProfs);
 
-                        // display qr and link if only one course
-                        if (coursesProfs.length === 1) {
+                        if (tempCoursesProfs.length === 1) {
                             handleCourseProfSelection(coursesProfs[0]);
+                        }
+                        else {
+                            setCoursesProfs(tempCoursesProfs);
                         }
                     }
                 })
