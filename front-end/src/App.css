@@ -82,7 +82,7 @@
 }
 
 .header-card {
-    padding: 0.5rem;
+    padding: 0.4rem;
 }
 
 .input-error {
@@ -99,9 +99,9 @@
 }
 
 .logo {
-    max-height: 65px;
+    max-height: 60px;
     max-width: 100%;
-    margin-top: 20px;
+    margin-right: 5px;
 }
 
 @media (max-width: 1199px) {
@@ -131,7 +131,6 @@
     }
     .logo {
         max-height: 30px;
-        margin-top: 10px;
     }
 }
 
@@ -157,6 +156,5 @@
     }
     .logo {
         max-height: 10px;
-        margin-top: 15px;
     }
 }

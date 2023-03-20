@@ -11,7 +11,8 @@ function CourseProfCard(props) {
     return (
         <Card className="mb-3 my-card p-4">
                 <Card.Text className="card-text">
-                    Course: <strong>{props.courseProf.course}</strong>
+                    Course: <strong>{props.courseProf.dept + ' ' + props.courseProf.courseNumber + ' ' + 
+                    props.courseProf.course}</strong>
                 </Card.Text>
                 <Card.Text className="card-text">
                     Professor: <strong>{props.courseProf.prof}</strong>

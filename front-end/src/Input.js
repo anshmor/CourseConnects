@@ -22,8 +22,8 @@ function Input(props) {
     const IDRef = useRef(null);
     const courseRef = useRef(null);
 
-    const backend_uri = 'https://courseconnects.herokuapp.com'
-    //const backend_uri = 'http://localhost:5000'
+    //const backend_uri = 'https://courseconnects.herokuapp.com'
+    const backend_uri = 'http://localhost:5000'
     const depts = new Set(['AI', 'AAR', 'AAS', 'ACC', 'ACF', 'ADV', 'AED', 'AET', 'AFR', 'AFS', 'AHC', 'ALD', 'AMS', 
     'ANS', 'ANT', 'ARA', 'ARC', 'ARE', 'ARH', 'ARI', 'ART', 'ARY', 'ASE', 'ASL', 'AST', 'BA', 'BCH', 'BDP', 'BEN', 
     'BGS', 'BIO', 'BME', 'BSN', 'CC', 'CE', 'CL', 'CS', 'CAM', 'CGS', 'CH', 'CHE', 'CHI', 'CLA', 'CLS', 'CMS', 'COE', 

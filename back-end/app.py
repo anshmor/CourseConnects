@@ -48,14 +48,26 @@ class ProfCourse:
 def getGroupCourseCode():
     referer = request.headers.get('Referer')
     # ensure only my react front end can make calls
-    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' :
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' and referer != 'http://localhost:3000/':
         abort(403)
 
     dept = request.args.get('dept')
     courseCode  = request.args.get('courseCode')
 
-    if (dept + courseCode in courseCodeToCourseProf):
-        courseProfsMatch = [vars(i) for i in courseCodeToCourseProf[dept + courseCode]]
+    if (dept in courseCodeToCourseProf):
+        courseProfsMatch = []
+        if courseCode in courseCodeToCourseProf[dept] :
+            courseProfsMatch = courseCodeToCourseProf[dept][courseCode]
+        
+        # no exact match, see if anything course codes start with inputted code
+        else :
+            for courseNumber in courseCodeToCourseProf[dept]:
+                if courseNumber.startswith(courseCode) :
+                    for i in courseCodeToCourseProf[dept][courseNumber] :
+                        courseProfsMatch.append(i)
+
+        courseProfsMatch = [vars(i) for i in courseProfsMatch]
+        
         return jsonify(courseProfsMatch)
     else:
         return 'No Matches'
@@ -68,7 +80,7 @@ def getGroupCourseCode():
 def getGroup():
     referer = request.headers.get("Referer")
     # ensure only my react front end can make calls
-    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' :
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' and referer != 'http://localhost:3000/' :
         abort(403)
 
     id = request.args.get('id')
@@ -77,7 +89,8 @@ def getGroup():
         courseProf = idToCourseProf[id]
         if (len(courseProf.groupMe) == 0):
             # create groupMe for course
-            payload = {'name': courseProf.dept + " " + courseProf.courseNumber, 'share': True, 'image_url': 'https://i.groupme.com/123456789'}
+            profLastName = courseProf.prof[:courseProf.prof.index(',')]
+            payload = {'name': courseProf.dept + " " + courseProf.courseNumber + " - " + profLastName, 'share': True, 'image_url': 'https://courseconnects.com/CCLogo.png'}
             headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
             r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers).json()
             if (r['meta']['code'] != 201):
@@ -106,6 +119,21 @@ def getGroup():
 
 # accesses mongoDB database and builds a hashMap from it
 def buildDictFromMongoDB():
+    # results = collection.find()
+    # for doc in results:
+    #     curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'], doc['groupMe'])
+    #     for i in doc['ids']:
+    #         idToCourseProf[i] = curCourseProf
+    #         curCourseProf.ids.append(i)
+
+    #     deptCourseNumber = curCourseProf.dept + curCourseProf.courseNumber
+
+    #     if deptCourseNumber in courseCodeToCourseProf :
+    #         courseCodeToCourseProf[deptCourseNumber].append(curCourseProf)
+    #     else :
+    #         courseCodeToCourseProf[deptCourseNumber] = []
+    #         courseCodeToCourseProf[deptCourseNumber].append(curCourseProf)
+
     results = collection.find()
     for doc in results:
         curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'], doc['groupMe'])
@@ -113,12 +141,16 @@ def buildDictFromMongoDB():
             idToCourseProf[i] = curCourseProf
             curCourseProf.ids.append(i)
 
-        deptCourseNumber = curCourseProf.dept + curCourseProf.courseNumber
-        if deptCourseNumber in courseCodeToCourseProf :
-            courseCodeToCourseProf[deptCourseNumber].append(curCourseProf)
+        
+        if curCourseProf.dept in courseCodeToCourseProf :
+            if curCourseProf.courseNumber not in courseCodeToCourseProf[curCourseProf.dept]:
+                courseCodeToCourseProf[curCourseProf.dept][curCourseProf.courseNumber] = []
+
         else :
-            courseCodeToCourseProf[deptCourseNumber] = []
-            courseCodeToCourseProf[deptCourseNumber].append(curCourseProf)
+            courseCodeToCourseProf[curCourseProf.dept] = {}
+            courseCodeToCourseProf[curCourseProf.dept][curCourseProf.courseNumber] = []
+
+        courseCodeToCourseProf[curCourseProf.dept][curCourseProf.courseNumber].append(curCourseProf)
         
 
 
