@@ -130,7 +130,7 @@ function Input(props) {
                         }
 
                         if (tempCoursesProfs.length === 1) {
-                            handleCourseProfSelection(coursesProfs[0]);
+                            handleCourseProfSelection(tempCoursesProfs[0]);
                         }
                         else {
                             setCoursesProfs(tempCoursesProfs);
