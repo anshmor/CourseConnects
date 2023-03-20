@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
@@ -6,7 +6,7 @@ import CourseProfCard from './CourseProfCard';
 import JoinGroupMe from './JoinGroupMe';
 import './App.css';
 
-function Input() {
+function Input(props) {
     const [id, setid] = useState("");
     const [courseCode, setCourseCode] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -15,7 +15,7 @@ function Input() {
     const [coursesProfs, setCoursesProfs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [inputType, setInputType] = useState("dept");
-    const [isSmallScreen, setIsSmallScreen] = useState(false);
+    
     var curCourseCode = "";
     var curDept = "";
 
@@ -39,22 +39,6 @@ function Input() {
     'SAN', 'SAX', 'SCA', 'SCI', 'SDS', 'SED', 'SEL', 'SLA', 'SME', 'SOC', 'SPC', 'SPN', 'SSB', 'SSC', 'STA', 'STC', 'STS', 
     'SUS', 'SWA', 'SWE', 'STM', 'SLH', 'TC', 'TD', 'TAM', 'TBA', 'TEL', 'TRO', 'TRU', 'TUR', 'TXA', 'UD', 'UDN', 'UGS', 'URB', 
     'URD', 'UTL', 'UTS', 'UKR', 'VC', 'VAS', 'VIA', 'VIB', 'VIO', 'VOI', 'VTN', 'WCV', 'WGS', 'WRT', 'YID', 'YOR'])
-
-
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(max-width: 768px)');
-        setIsSmallScreen(mediaQuery.matches);
-    
-        const handleMediaQueryChange = (event) => {
-          setIsSmallScreen(event.matches);
-        };
-    
-        mediaQuery.addListener(handleMediaQueryChange);
-    
-        return () => {
-          mediaQuery.removeListener(handleMediaQueryChange);
-        };
-      }, []);
 
 
     const handleError = (error) => {
@@ -84,7 +68,7 @@ function Input() {
         setCoursesProfs([]);
         setCourseProf(null);
         if (!validateID() || id.length === 0) {
-            setErrorMessage('Fix your input (⩺_⩹)');
+            setErrorMessage('Fix your input' + String.fromCodePoint(0x1F621));
          }
         else {
             sendId(id.trim());
@@ -125,7 +109,7 @@ function Input() {
         setErrorMessage('');
         setCoursesProfs([]);
         if (!validateCourse() || courseCode.length === 0) {
-            setErrorMessage('Fix your input (⩺_⩹)');
+            setErrorMessage('Fix your input' + String.fromCodePoint(0x1F621));
         }
         else {
             setLoading(true);
@@ -158,7 +142,7 @@ function Input() {
 
 
     function updateInputError(input_error, small_input_error) {
-        if (isSmallScreen && small_input_error !== "") {
+        if (props.isSmallScreen && small_input_error !== "") {
             if (small_input_error !== inputError) {
                 setInputError(small_input_error);
             }
@@ -259,8 +243,8 @@ function Input() {
                 <Form onSubmit={handleCourseSubmit} className="my-form">
                     <Form.Group controlId="formCourseCode">
                         <div className="d-flex justify-content-between">
-                            <Form.Label className="form-label">{isSmallScreen ? "Class Dept + Code" : "Class Department and Code"}</Form.Label>
-                            <Form.Label style={{color: "#dc3545"}} className={isSmallScreen ? "form-label" : "form-label mx-4"}>{inputError}</Form.Label>
+                            <Form.Label className="form-label">{props.isSmallScreen ? "Class Dept + Code" : "Class Department and Code"}</Form.Label>
+                            <Form.Label style={{color: "#dc3545"}} className={props.isSmallScreen ? "form-label" : "form-label mx-4"}>{inputError}</Form.Label>
                         </div>
                         <Form.Control type="text" name="id" placeholder="Ex. CS 429H" ref={courseRef} onFocus={() => courseRef.current.select()}
                         value={courseCode} onChange={(event) => setCourseCode(event.target.value)} 
@@ -283,7 +267,7 @@ function Input() {
                 <Form onSubmit={handleIDSubmit} className="my-form">
                     <Form.Group controlId="formId">
                         <div className="d-flex justify-content-between">
-                            <Form.Label className="form-label">{isSmallScreen ? "5 Digit Course ID" : "Unique 5 Digit Course ID"}</Form.Label>
+                            <Form.Label className="form-label">{props.isSmallScreen ? "5 Digit Course ID" : "Unique 5 Digit Course ID"}</Form.Label>
                             <Form.Label style={{color: "#dc3545"}} className="form-label">{inputError}</Form.Label>
                         </div>
                         <Form.Control type="text" name="id" placeholder="Ex. 32460" ref={IDRef} onFocus={() => IDRef.current.select()}
@@ -296,7 +280,7 @@ function Input() {
                         </Button>
                         <Button variant="primary" className="toggle-button mb-3 mt-2" 
                         onClick={() => {setInputError(""); setInputType("dept");}}>
-                            {isSmallScreen ? "Search by dept + number" : "Search by course dept and number"}
+                            {props.isSmallScreen ? "Search by dept + number" : "Search by course dept and number"}
                         </Button>
                     </div>
                 </Form>

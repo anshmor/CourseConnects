@@ -58,13 +58,20 @@
 }
 
 .title {
-    font-size: 3.5rem; 
+    font-size: 4rem; 
     line-height: 1.5; 
-    
+    color: #ba7719;
+    text-shadow:
+    -0.5px -0.5px 0 black,
+    0.5px -0.5px 0 black,
+    -0.5px 0.5px 0 black,
+    0.5px 0.5px 0 black; 
+    display: inline;
 }
 
 .subtitle {
     font-size: 1.5rem;
+    
 }
 
 .footer {
@@ -92,6 +99,12 @@
     margin: 0 auto;
 }
 
+.logo {
+    max-height: 65px;
+    max-width: 100%;
+    margin-top: 20px;
+}
+
 @media (max-width: 1199px) {
     .my-form {
         width: 85%;
@@ -100,7 +113,7 @@
 
 @media (max-width: 767px) {
     .title {
-      font-size: 2rem; 
+      font-size: 2.25rem; 
       line-height: 1.2; 
     }
     .subtitle {
@@ -118,15 +131,19 @@
     .my-form {
         width: 100%;
     }
+    .logo {
+        max-height: 30px;
+        margin-top: 10px;
+    }
 }
 
 @media (max-width: 300px) {
     .title {
-        font-size: 1.5rem; 
+        font-size: 1.8rem; 
         line-height: 1.2; 
     }
     .subtitle {
-        font-size: 0.75rem;
+        font-size: 0.5rem;
     }
     .card-text {
         font-size: 0.8rem;
@@ -139,5 +156,9 @@
     }
     .my-form {
         width: 100%;
+    }
+    .logo {
+        max-height: 10px;
+        margin-top: 15px;
     }
 }
