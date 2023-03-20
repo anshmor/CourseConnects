@@ -66,9 +66,13 @@ def getGroupCourseCode():
                     for i in courseCodeToCourseProf[dept][courseNumber] :
                         courseProfsMatch.append(i)
 
+        if len(courseProfsMatch) == 0:
+            return "No Matches"
+        
         courseProfsMatch = [vars(i) for i in courseProfsMatch]
         
         return jsonify(courseProfsMatch)
+    
     else:
         return 'No Matches'
 
