@@ -205,6 +205,10 @@ function Input(props) {
         }
 
         else {
+            if (temp.length > 3 || temp.length < 1) {
+                updateInputError("*Department should be 1-3 letters", "*Dept should be 1-3 letters");
+                return false
+            }
             updateInputError("*Enter course department and code", "*Enter dept and code");
             return false;
         }
