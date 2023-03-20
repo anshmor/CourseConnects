@@ -129,6 +129,11 @@ function Input(props) {
                             tempCoursesProfs.push(response.data[i]);
                         }
                         setCoursesProfs(tempCoursesProfs);
+
+                        // display qr and link if only one course
+                        if (coursesProfs.length === 1) {
+                            handleCourseProfSelection(coursesProfs[0]);
+                        }
                     }
                 })
                 .catch((error) => {
@@ -203,7 +208,7 @@ function Input(props) {
             return false;
         }
         
-        if (curDept.length > 3) {
+        if (curDept.length > 3 || curDept.length < 1) {
             updateInputError("*Department should be 1-3 letters", "*Dept should be 1-3 letters");
             return false
         }
