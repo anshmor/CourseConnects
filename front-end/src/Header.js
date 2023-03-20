@@ -10,7 +10,6 @@ function Header() {
             <div className="d-flex justify-content-center">
                 <Card.Title  className="text-center title mx-3"><Image className="logo" src="CCLogo.png" alt="CC" fluid />CourseConnects</Card.Title>
             </div>
-            
             <Card.Text className="text-center mb-1 subtitle">
                 Join the GroupMe for each of your UT classes!
             </Card.Text>
