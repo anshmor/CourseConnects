@@ -9,19 +9,17 @@ function CourseProfCard(props) {
     }
 
     return (
-        <div className="d-flex justify-content-center">
-            <Card className="mb-3 my-card p-4">
-                    <Card.Text className="card-text">
-                        Course: <strong>{props.courseProf.dept + ' ' + props.courseProf.courseNumber + ' ' + 
-                        props.courseProf.course}</strong>
-                    </Card.Text>
-                    <Card.Text className="card-text">
-                        Professor: <strong>{props.courseProf.prof}</strong>
-                    </Card.Text>
-                    <Button onClick={handleClick} className="my-button">Select</Button>
-                
-            </Card>
-        </div>
+        <Card className="mb-3 my-card p-4">
+                <Card.Text className="card-text">
+                    Course: <strong>{props.courseProf.dept + ' ' + props.courseProf.courseNumber + ' ' + 
+                    props.courseProf.course}</strong>
+                </Card.Text>
+                <Card.Text className="card-text">
+                    Professor: <strong>{props.courseProf.prof}</strong>
+                </Card.Text>
+                <Button onClick={handleClick} className="my-button">Select</Button>
+            
+        </Card>
       );
 }
 

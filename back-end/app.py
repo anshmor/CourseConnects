@@ -35,10 +35,14 @@ class ProfCourse:
         
 
     def __eq__(self, obj):
-        return isinstance(obj, ProfCourse) and self.prof == obj.prof and self.course == obj.course
+        return isinstance(obj, ProfCourse) and self.prof == obj.prof and self.course == obj.course and self.dept == obj.dept and self.courseNumber == obj.courseNumber and self.season == obj.season and self.year == obj.year
 
     def __str__(self):
-        return self.dept + " " + self.courseNumber + " " + self.course + ": " + self.prof + "; " + self.season + ", " + self.year + " " + str(self.ids)
+        toReturn = self.dept + " " + self.courseNumber + " " + self.course + ": " + self.prof + "; " + self.season + ", " + self.year + "\n" + str(self.ids)
+        if len(self.groupMe) != 0 :
+            toReturn += '\n' + self.groupMe['share_url'] + ' ' + self.groupMe['id']
+
+        return toReturn
 
     def __hash__(self):
         return hash(str(self))
@@ -55,23 +59,23 @@ def getGroupCourseCode():
     courseCode  = request.args.get('courseCode')
 
     if (dept in courseCodeToCourseProf):
-        courseProfsMatch = []
+        coursesProfsMatch = []
         if courseCode in courseCodeToCourseProf[dept] :
-            courseProfsMatch = courseCodeToCourseProf[dept][courseCode]
+            coursesProfsMatch = courseCodeToCourseProf[dept][courseCode]
         
         # no exact match, see if anything course codes start with inputted code
         else :
             for courseNumber in courseCodeToCourseProf[dept]:
                 if courseNumber.startswith(courseCode) :
                     for i in courseCodeToCourseProf[dept][courseNumber] :
-                        courseProfsMatch.append(i)
+                        coursesProfsMatch.append(i)
 
-        if len(courseProfsMatch) == 0:
+        if len(coursesProfsMatch) == 0:
             return "No Matches"
         
-        courseProfsMatch = [vars(i) for i in courseProfsMatch]
+        finalCourseProfsMatch = [vars(i) for i in coursesProfsMatch]
         
-        return jsonify(courseProfsMatch)
+        return jsonify(finalCourseProfsMatch)
     
     else:
         return 'No Matches'
@@ -107,13 +111,31 @@ def getGroup():
                 groupMeResponse = r['response']
                 # push it to mongoDB database
                 groupMeDict = {'id': groupMeResponse['id'], 'share_url': groupMeResponse['share_url']}
-                newValues = {'$set': {'groupMe': groupMeDict}}
-                query = {'prof': courseProf.prof, 'course': courseProf.course, 'courseNumber': courseProf.courseNumber, 'dept': courseProf.dept}
-                collection.update_one(query, newValues)
 
                 # update local groupMe info in courseProf
                 courseProf.groupMe = groupMeDict
-            
+
+                newValues = {'$set': {'groupMe': groupMeDict}}
+                query = {'prof': courseProf.prof, 'course': courseProf.course, 'courseNumber': courseProf.courseNumber, 'dept': courseProf.dept}
+                collection.update_one(query, newValues)
+        
+        '''
+        For debugging purposes
+
+        print(str(courseProf) + '\n')
+
+        print("idToCourseProf\n")
+        for i in idToCourseProf :
+            if (idToCourseProf[i] is courseProf) :
+                print(str(idToCourseProf[i]) + '\n')
+
+        print("CourseProfs\n ")
+        for i in courseCodeToCourseProf[courseProf.dept][courseProf.courseNumber] :
+            if i == courseProf :
+                print(str(i) + '\n')
+        '''
+        
+
         return vars(courseProf)
 
     else:

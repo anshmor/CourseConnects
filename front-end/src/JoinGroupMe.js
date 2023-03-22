@@ -8,7 +8,6 @@ import './App.css';
 
 function JoinGroupMe(props) {
     return (
-        <div className="d-flex justify-content-center">
             <Card className="p-3 my-card">
                 <Row>
                     <Col>
@@ -42,7 +41,6 @@ function JoinGroupMe(props) {
                     </Col>
                 </Row>
             </Card>
-        </div>
       );
 }
 
