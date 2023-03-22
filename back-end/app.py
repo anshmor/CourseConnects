@@ -119,21 +119,22 @@ def getGroup():
                 query = {'prof': courseProf.prof, 'course': courseProf.course, 'courseNumber': courseProf.courseNumber, 'dept': courseProf.dept}
                 collection.update_one(query, newValues)
         
-        '''
-        For debugging purposes
-
+        
+        
+        print("Acutal courseProf:\n")
         print(str(courseProf) + '\n')
 
         print("idToCourseProf\n")
         for i in idToCourseProf :
             if (idToCourseProf[i] is courseProf) :
+                print(id + ":\n")
                 print(str(idToCourseProf[i]) + '\n')
 
         print("CourseProfs\n ")
         for i in courseCodeToCourseProf[courseProf.dept][courseProf.courseNumber] :
             if i == courseProf :
                 print(str(i) + '\n')
-        '''
+        
         
 
         return vars(courseProf)
