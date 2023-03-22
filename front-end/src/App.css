@@ -104,6 +104,10 @@
     margin-right: 5px;
 }
 
+.warning {
+    font-size: 0.7rem;
+}
+
 @media (max-width: 1199px) {
     .my-form {
         width: 85%;
@@ -132,6 +136,9 @@
     .logo {
         max-height: 30px;
     }
+    .warning {
+        font-size: 0.6rem;
+    }
 }
 
 @media (max-width: 300px) {
@@ -156,5 +163,8 @@
     }
     .logo {
         max-height: 10px;
+    }
+    .warning {
+        font-size: 0.3rem;
     }
 }

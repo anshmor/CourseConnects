@@ -31,6 +31,7 @@ function App() {
         <Header isSmallScreen={isSmallScreen}/>
         <Input isSmallScreen={isSmallScreen}/>
       </Container>
+
       <footer className="mt-auto">
         <Footer />
       </footer>

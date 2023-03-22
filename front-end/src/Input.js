@@ -266,7 +266,7 @@ function Input(props) {
                             </Button>
                             <Button variant="primary" className="toggle-button mb-3 mt-2" 
                             onClick={() => {setInputError(""); setInputType("id");}}>
-                                Search by 5 digit ID
+                                Search By 5 Digit ID
                             </Button>
                     </div>
                     
@@ -290,7 +290,7 @@ function Input(props) {
                         </Button>
                         <Button variant="primary" className="toggle-button mb-3 mt-2" 
                         onClick={() => {setInputError(""); setInputType("dept");}}>
-                            {props.isSmallScreen ? "Search by dept + number" : "Search by course dept and number"}
+                            {props.isSmallScreen ? "Search By Dept + Number" : "Search By Course Dept and Number"}
                         </Button>
                     </div>
                 </Form>
@@ -320,7 +320,7 @@ function Input(props) {
                 }
 
                 {courseProf &&
-                <JoinGroupMe courseProf={courseProf}/>
+                <JoinGroupMe className="text-center" courseProf={courseProf}/>
                 }
             </Container>
         </Container>
