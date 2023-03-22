@@ -129,7 +129,7 @@ def getGroup():
         print("idToCourseProf\n")
         for i in idToCourseProf :
             if (idToCourseProf[i] is courseProf) :
-                print(id + ":\n")
+                print(i + ":\n")
                 print(str(idToCourseProf[i]) + '\n')
 
         print("CourseProfs\n ")
