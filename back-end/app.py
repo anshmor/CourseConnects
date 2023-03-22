@@ -95,6 +95,8 @@ def getGroup():
 
     if (id in idToCourseProf):
         courseProf = idToCourseProf[id]
+        print("ACTUAL COURSEPROF, BEFORE GROUPME CODE:\n ")
+        print(str(courseProf) + '\n')
         if (len(courseProf.groupMe) == 0):
             # create groupMe for course
             profLastName = courseProf.prof[:courseProf.prof.index(',')]
@@ -121,7 +123,7 @@ def getGroup():
         
         
         
-        print("Acutal courseProf:\n")
+        print("Actual courseProf:\n")
         print(str(courseProf) + '\n')
 
         print("idToCourseProf\n")
