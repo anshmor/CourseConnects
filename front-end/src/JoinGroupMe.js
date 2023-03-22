@@ -12,7 +12,7 @@ function JoinGroupMe(props) {
             <Card className="p-3 my-card">
                 <Row>
                     <Col>
-                        <Card.Text className="warning mb-1">*Website being introduced mid-semester so some classes may have a different prexisting GroupMe</Card.Text>
+                        <Card.Text className="warning mb-1">*Website being introduced mid-semester so some classes may have a different preexisting GroupMe</Card.Text>
                     </Col>
                 </Row>
                 <Row>
