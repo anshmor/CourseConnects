@@ -100,7 +100,6 @@ def getGroup():
             # check if database has groupMe data
             query = {'course': courseProf.course, 'prof': courseProf.prof, 'courseNumber': courseProf.courseNumber, 'dept': courseProf.dept}
             result = collection.find_one(query)
-            print(result)
 
             # database has no groupMe data, we genereate groupMe
             if len(result['groupMe']) == 0:
@@ -141,22 +140,8 @@ def getGroup():
 
 # accesses mongoDB database and builds a hashMap from it
 def buildDictFromMongoDB():
-    # results = collection.find()
-    # for doc in results:
-    #     curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'], doc['groupMe'])
-    #     for i in doc['ids']:
-    #         idToCourseProf[i] = curCourseProf
-    #         curCourseProf.ids.append(i)
-
-    #     deptCourseNumber = curCourseProf.dept + curCourseProf.courseNumber
-
-    #     if deptCourseNumber in courseCodeToCourseProf :
-    #         courseCodeToCourseProf[deptCourseNumber].append(curCourseProf)
-    #     else :
-    #         courseCodeToCourseProf[deptCourseNumber] = []
-    #         courseCodeToCourseProf[deptCourseNumber].append(curCourseProf)
-
     results = collection.find()
+    
     for doc in results:
         curCourseProf = ProfCourse(doc['prof'], doc['course'], doc['dept'], doc['courseNumber'], doc['year'], doc['season'], doc['groupMe'])
         for i in doc['ids']:
