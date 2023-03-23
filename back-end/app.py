@@ -47,12 +47,12 @@ class ProfCourse:
     def __hash__(self):
         return hash(str(self))
 
-
+# gets all courseProfs that match inputted dept and courseCode
 @app.route('/getGroupsCourseCode')
 def getGroupCourseCode():
     referer = request.headers.get('Referer')
     # ensure only my react front end can make calls
-    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' :
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' and referer != 'http://localhost:3000/':
         abort(403)
 
     dept = request.args.get('dept')
@@ -73,9 +73,7 @@ def getGroupCourseCode():
         if len(coursesProfsMatch) == 0:
             return "No Matches"
         
-        finalCourseProfsMatch = [vars(i) for i in coursesProfsMatch]
-        
-        return jsonify(finalCourseProfsMatch)
+        return jsonify([vars(i) for i in coursesProfsMatch])
     
     else:
         return 'No Matches'
@@ -88,7 +86,7 @@ def getGroupCourseCode():
 def getGroup():
     referer = request.headers.get("Referer")
     # ensure only my react front end can make calls
-    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' :
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' and referer != 'http://localhost:3000/':
         abort(403)
 
     id = request.args.get('id')
@@ -97,30 +95,43 @@ def getGroup():
         courseProf = idToCourseProf[id]
         print("ACTUAL COURSEPROF, BEFORE GROUPME CODE:\n ")
         print(str(courseProf) + '\n')
-        if (len(courseProf.groupMe) == 0):
-            # create groupMe for course
-            profLastName = courseProf.prof[:courseProf.prof.index(',')]
-            payload = {'name': courseProf.dept + " " + courseProf.courseNumber + " - " + profLastName, 'share': True, 'image_url': 'https://courseconnects.com/CCLogo.png'}
-            headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
-            r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers).json()
-            if (r['meta']['code'] != 201):
-                print("Error occurred while trying to create GroupMe group.")
-                print(r)
-                return vars(ProfCourse(courseProf.prof, courseProf.course, courseProf.dept, courseProf.courseNumber,
-                                        courseProf.year, courseProf.season, {'share_url': 'Error with your GroupMe link', 'id': ''}))
 
-            else:
-                groupMeResponse = r['response']
-                # push it to mongoDB database
-                groupMeDict = {'id': groupMeResponse['id'], 'share_url': groupMeResponse['share_url']}
+        # cache of server doesn't have groupMe data
+        if len(courseProf.groupMe) == 0:
 
-                # update local groupMe info in courseProf
-                courseProf.groupMe = groupMeDict
+            # check if database has groupMe data
+            query = {'course': courseProf.course, 'prof': courseProf.prof, 'courseNumber': courseProf.courseNumber, 'dept': courseProf.dept}
+            result = collection.find_one(query)
+            print(result)
 
-                newValues = {'$set': {'groupMe': groupMeDict}}
-                query = {'prof': courseProf.prof, 'course': courseProf.course, 'courseNumber': courseProf.courseNumber, 'dept': courseProf.dept}
-                collection.update_one(query, newValues)
-        
+            # database has no groupMe data, we genereate groupMe
+            if len(result['groupMe']) == 0:
+                # create groupMe for course
+                profLastName = courseProf.prof[:courseProf.prof.index(',')]
+                payload = {'name': courseProf.dept + " " + courseProf.courseNumber + " - " + profLastName, 'share': True, 'image_url': 'https://courseconnects.com/CCLogo.png'}
+                headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
+                r = requests.post('https://api.groupme.com/v3/groups', json=payload, headers=headers).json()
+
+                # issue with groupMe API, possibly API token
+                if (r['meta']['code'] != 201):
+                    print("Error occurred while trying to create GroupMe group.")
+                    print(r)
+                    return vars(ProfCourse(courseProf.prof, courseProf.course, courseProf.dept, courseProf.courseNumber,
+                                            courseProf.year, courseProf.season, {'share_url': 'Error with your GroupMe link', 'id': ''}))
+
+                else:
+                    groupMeResponse = r['response']
+                    # push it to mongoDB database
+                    groupMeDict = {'id': groupMeResponse['id'], 'share_url': groupMeResponse['share_url']}
+
+                    # update cache with groupMe info in courseProf
+                    courseProf.groupMe = groupMeDict
+
+                    newValues = {'$set': {'groupMe': groupMeDict}}
+                    collection.update_one(query, newValues)
+
+            else :
+                courseProf.groupMe = result.groupMe
         
         
         print("Actual courseProf:\n")
@@ -138,9 +149,9 @@ def getGroup():
                 print(str(i) + '\n')
         
         
-
         return vars(courseProf)
 
+    # id wasn't valid
     else:
         return vars(ProfCourse('','','','','','',{'share_url':'', 'id':''}))
 

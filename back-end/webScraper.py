@@ -42,6 +42,9 @@ class ProfCourse:
 
 # for testing
 def delete_group(courseProf):
+    confirmation = input('You are trying to delete every GroupMe. Enter "Yes delete all GroupMes." to proceed')
+    if confirmation != 'Yes delete all GroupMes.':
+        return
     headers = {'Content-Type': 'application/json', 'X-Access-Token': groupMe_token}
     requests.post('https://api.groupme.com/v3/groups/' + courseProf.groupMe['id'] + '/destroy', headers=headers)
     #r = requests.post('https://api.groupme.com/v3/groups/92404620/destroy', headers=headers)
