@@ -52,7 +52,7 @@ class ProfCourse:
 def getGroupCourseCode():
     referer = request.headers.get('Referer')
     # ensure only my react front end can make calls
-    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' and referer != 'http://localhost:3000/':
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' :
         abort(403)
 
     dept = request.args.get('dept')
@@ -86,15 +86,13 @@ def getGroupCourseCode():
 def getGroup():
     referer = request.headers.get("Referer")
     # ensure only my react front end can make calls
-    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' and referer != 'http://localhost:3000/':
+    if referer != 'https://courseconnects.com/' and referer != 'https://www.courseconnects.com/' :
         abort(403)
 
     id = request.args.get('id')
 
     if (id in idToCourseProf):
         courseProf = idToCourseProf[id]
-        print("ACTUAL COURSEPROF, BEFORE GROUPME CODE:\n ")
-        print(str(courseProf) + '\n')
 
         # cache of server doesn't have groupMe data
         if len(courseProf.groupMe) == 0:
@@ -131,23 +129,7 @@ def getGroup():
                     collection.update_one(query, newValues)
 
             else :
-                courseProf.groupMe = result.groupMe
-        
-        
-        print("Actual courseProf:\n")
-        print(str(courseProf) + '\n')
-
-        print("idToCourseProf\n")
-        for i in idToCourseProf :
-            if (idToCourseProf[i] is courseProf) :
-                print(i + ":\n")
-                print(str(idToCourseProf[i]) + '\n')
-
-        print("CourseProfs\n ")
-        for i in courseCodeToCourseProf[courseProf.dept][courseProf.courseNumber] :
-            if i == courseProf :
-                print(str(i) + '\n')
-        
+                courseProf.groupMe = result['groupMe']
         
         return vars(courseProf)
 
